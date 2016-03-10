@@ -11,7 +11,7 @@ private:
     unique_ptr<ImageMap> imageY;
 public:
     SobelFilter();
-    unique_ptr<ImageMap> virtual apply(const ImageMap &data) const;
+    unique_ptr<ImageMap> virtual apply(const ImageMap &data);
     ImageMap *getImageX();
     ImageMap *getImageY();
 

@@ -5,10 +5,13 @@
 #include "sobelfilter.h"
 class MoravekDetector : public AbstractDetector
 {
-    unique_ptr<SobelFilter> sobelFilter;
+    int d[8][2];
+    double T;
+    int winR;
 public:
     MoravekDetector(ImageMap *data);
-    virtual void detect(double T, int winR);
+    void configure(double T, int winR);
+    virtual void detect();
 };
 
 #endif // MORAVEKDETECTOR_H

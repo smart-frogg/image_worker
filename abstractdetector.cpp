@@ -1,4 +1,5 @@
 #include "abstractdetector.h"
+#include <QPainter>
 
 Point::Point(int x, int y)
 {
@@ -23,10 +24,14 @@ AbstractDetector::AbstractDetector(ImageMap *data)
 
 void AbstractDetector::save(QString filename)
 {
-    QImage *image = this->data->asImage().get();
+    unique_ptr<QImage> image = this->data->asImage();
+    unique_ptr<QPainter> painter = make_unique<QPainter>(image.get());
+    painter->setBrush(Qt::green);
+    painter->setPen(Qt::white);
     for(Point p:points)
     {
-        image->setPixel(p.x,p.y,qRgb(0,255,0));
+        painter->drawEllipse(p.x-3,p.y-3,7,7);
+        //image->setPixel(p.x,p.y,qRgb(255,0,0));
     }
     image->save(filename,"JPG");
 }

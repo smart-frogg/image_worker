@@ -50,8 +50,10 @@ int main(int argc, char *argv[])
         cout << "m - Moravek" << endl;
         cout << "h - Harris" << endl;
     }
-    QString fileName = "c:/WORK/study/images_data/kirpichnaya_kladka1.jpg";
+    //QString fileName = "c:/WORK/study/images_data/kirpichnaya_kladka1.jpg";
     //QString fileName = "c:/WORK/study/images_data/iris10.jpg";
+    QString fileName = "c:/WORK/study/images_data/Izyashhnyy-cvetok-iris.jpg";
+    //QString fileName = "c:/WORK/study/images_data/Iris_sanguinea_01.jpg";
 
     if (argc >1)
         fileName = argv[1];
@@ -81,7 +83,7 @@ int main(int argc, char *argv[])
         case 'f':
         {
             filter = getFilter(filterName);
-            image->saveFiltered(*filter);
+            image->saveFiltered(filter.get());
         } break;
         case 'p':
         {
@@ -92,7 +94,7 @@ int main(int argc, char *argv[])
         case 'd':
         {
              image->detect(filterName);
-        }
+        } break;
         case 'n':
         default: image->saveNormalize();
     }

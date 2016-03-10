@@ -9,7 +9,7 @@ SeparableKernel::SeparableKernel(int height,
     this->fRow = move(fRow);
 }
 
-unique_ptr<ImageMap> SeparableKernel::apply(const ImageMap &data) const
+unique_ptr<ImageMap> SeparableKernel::apply(const ImageMap &data)
 {
     int imageHeight = data.getHeight();
     int imageWidth = data.getWidth();

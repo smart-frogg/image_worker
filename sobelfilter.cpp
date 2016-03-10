@@ -20,10 +20,11 @@ SobelFilter::SobelFilter() : FilterKernel(3, 3)
     gy = make_unique<SeparableKernel>(3,3,fColY,fRowY);
     gx = make_unique<SeparableKernel>(3,3,fColX,fRowX);
 }
-unique_ptr<ImageMap> SobelFilter::apply(const ImageMap &data) const
+
+unique_ptr<ImageMap> SobelFilter::apply(const ImageMap &data)
 {
     imageX = gx->apply(data);
-    imageY = move(gy->apply(data));
+    imageY = gy->apply(data);
     int imageHeight = data.getHeight();
     int imageWidth = data.getWidth();
     unique_ptr<ImageMap> res = make_unique<ImageMap>(imageHeight,imageWidth);

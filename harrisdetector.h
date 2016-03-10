@@ -7,9 +7,13 @@ class HarrisDetector : public AbstractDetector
 {
 protected:
     unique_ptr<SobelFilter> sobelFilter;
+    double T;
+    double k;
+    int winR;
 public:
     HarrisDetector(ImageMap *data);
-    virtual void detect(double T, int winR);
+    void configure(double T, double k, int winR);
+    virtual void detect();
 };
 
 #endif // HARRISDETECTOR_H

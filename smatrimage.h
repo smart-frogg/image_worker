@@ -26,7 +26,7 @@ public:
     double L(int x, int y, double sigma);
     void saveNormalize();
     void setBorderType(char border);
-    void saveFiltered(const FilterKernel & filter);
+    void saveFiltered(FilterKernel *filter);
     void savePiramid(int countLayers,double sigma0, double sigmaFirst);
     void detect(char detectorName);
 };

@@ -11,7 +11,7 @@ protected:
     int width;
 public:
     FilterKernel(int height, int width);
-    unique_ptr<ImageMap> virtual apply(const ImageMap &data) const = 0 ;
+    unique_ptr<ImageMap> virtual apply(const ImageMap &data) = 0 ;
 };
 
 #endif // FILTERKERNEL_H

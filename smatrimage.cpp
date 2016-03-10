@@ -32,9 +32,9 @@ void SmartImage::saveNormalize()
     data->saveToFile ((baseName+"_normalize.jpg"));
 }
 
-void SmartImage::saveFiltered(const FilterKernel & filter)
+void SmartImage::saveFiltered(FilterKernel *filter)
 {
-     unique_ptr<ImageMap> imageMap = filter.apply(*data);
+     unique_ptr<ImageMap> imageMap = filter->apply(*data);
      imageMap->saveToFile (baseName+"_filter.jpg");
 }
 
@@ -59,11 +59,17 @@ void SmartImage::detect(char detectorName)
     unique_ptr<AbstractDetector> detector;
     switch (detectorName)
     {
-        case 'm':  detector = make_unique<MoravekDetector>(data.get()); break;
+        case 'm':
+            detector = make_unique<MoravekDetector>(data.get());
+            ((MoravekDetector*)detector.get())->configure(0.2,1);
+            detector->detect();
+            detector->save(baseName+"_MoravekDetector.jpg");
+          break;
         case 'h':
         default:
             detector = make_unique<HarrisDetector>(data.get());
+            ((HarrisDetector*)detector.get())->configure(2,0.06,1);
+            detector->detect();
+            detector->save(baseName+"_HarrisonDetector.jpg");
     }
-    detector->detect(4,1);
-    detector->save(baseName+"_detector");
 }
