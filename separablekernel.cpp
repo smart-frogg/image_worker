@@ -22,7 +22,7 @@ unique_ptr<ImageMap> SeparableKernel::apply(const ImageMap &data) const
         {
             double brightness = 0;
             for (int kx = 0; kx < width; kx++)
-                brightness += this->fRow[width-1-kx] * data.getData(i+kx-width/2,j);
+                brightness += fRow[width-1-kx] * data.getData(i+kx-width/2,j);
             tmp->setData(brightness,i,j);
         }
     for (int i = 0; i < imageWidth; i++)
@@ -31,7 +31,7 @@ unique_ptr<ImageMap> SeparableKernel::apply(const ImageMap &data) const
             double brightness = 0;
             for (int ky = 0; ky < height; ky++)
             {
-                brightness +=  this->fCol[height-1-ky] * tmp->getData(i,j+ky-height/2);
+                brightness += fCol[height-1-ky] * tmp->getData(i,j+ky-height/2);
             }
             res->setData(brightness,i,j);
         }

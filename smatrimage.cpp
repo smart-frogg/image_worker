@@ -53,3 +53,17 @@ void SmartImage::setBorderType(char border)
 {
     data->setBorderType(border);
 }
+
+void SmartImage::detect(char detectorName)
+{
+    unique_ptr<AbstractDetector> detector;
+    switch (detectorName)
+    {
+        case 'm':  detector = make_unique<MoravekDetector>(data.get()); break;
+        case 'h':
+        default:
+            detector = make_unique<HarrisDetector>(data.get());
+    }
+    detector->detect(4,1);
+    detector->save(baseName+"_detector");
+}

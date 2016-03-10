@@ -1,6 +1,6 @@
 #include "sobelfilter.h"
 
-SobelFilter::SobelFilter(int height, int width) : FilterKernel(height, width)
+SobelFilter::SobelFilter() : FilterKernel(3, 3)
 {
     unique_ptr<double[]> fRowY = make_unique<double[]>(3);
     fRowY[0] = fRowY[2] = 1;
@@ -22,8 +22,8 @@ SobelFilter::SobelFilter(int height, int width) : FilterKernel(height, width)
 }
 unique_ptr<ImageMap> SobelFilter::apply(const ImageMap &data) const
 {
-    unique_ptr<ImageMap> imageX = gx->apply(data);
-    unique_ptr<ImageMap> imageY = gy->apply(data);
+    imageX = gx->apply(data);
+    imageY = move(gy->apply(data));
     int imageHeight = data.getHeight();
     int imageWidth = data.getWidth();
     unique_ptr<ImageMap> res = make_unique<ImageMap>(imageHeight,imageWidth);
@@ -39,5 +39,14 @@ unique_ptr<ImageMap> SobelFilter::apply(const ImageMap &data) const
         }
     res->normalize();
     return res;
+}
+ImageMap * SobelFilter::getImageX()
+{
+    return imageX.get();
+}
+
+ImageMap *SobelFilter::getImageY()
+{
+    return imageY.get();
 }
 

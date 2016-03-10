@@ -1,6 +1,7 @@
 #include "imagemap.h"
 #include <algorithm>
 #include <iostream>
+#include <numeric>
 ImageMap::ImageMap(int height, int width)
 {
     this->height = height;
@@ -76,8 +77,7 @@ unique_ptr<ImageMap> ImageMap::copy() const
     image->setBorderType(borderType);
     return image;
 }
-void ImageMap::saveToFile (QString filename){
-   // normalize();
+unique_ptr<QImage> ImageMap::asImage() {
     unique_ptr<QImage> image = make_unique<QImage>(width, height, QImage::Format_RGB32);
     for(int i=0; i<width; i++)
         for(int j=0; j<height; j++)
@@ -85,6 +85,12 @@ void ImageMap::saveToFile (QString filename){
             int brightness = (int)(getData(i, j)*255);
             image->setPixel(i,j,qRgb(brightness,brightness,brightness));
         }
+    return image;
+}
+
+void ImageMap::saveToFile (QString filename){
+   // normalize();
+    unique_ptr<QImage> image = asImage();
     image->save(filename,"JPG");
 }
 void ImageMap::normalize()
@@ -99,4 +105,9 @@ void ImageMap::normalize()
              setData((getData(i,j)-*(result.first))/floor,i,j);
              //cout << (getData(i,j)-*(result.first))/floor<<" ";
          }
+}
+double ImageMap::getAvg()
+{
+    auto data_ptr = data.get();
+    return accumulate(data_ptr,data_ptr+height*width,0)/(height*width);
 }

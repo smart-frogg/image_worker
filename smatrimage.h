@@ -5,6 +5,8 @@
 #include <memory>
 #include "imagemap.h"
 #include "piramid.h"
+#include "harrisdetector.h"
+#include "moravekdetector.h"
 using namespace std;
 
 class SmartImage
@@ -26,6 +28,7 @@ public:
     void setBorderType(char border);
     void saveFiltered(const FilterKernel & filter);
     void savePiramid(int countLayers,double sigma0, double sigmaFirst);
+    void detect(char detectorName);
 };
 
 #endif // SMATRIMAGE_H

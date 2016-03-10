@@ -21,8 +21,10 @@ public:
     void setBorderType(char border);
     unique_ptr<ImageMap> copy() const;
     ImageMap(int height,int width);
+    unique_ptr<QImage> asImage();
     void saveToFile(QString filename);
     void normalize();
+    double getAvg();
 };
 
 #endif // IMAGEMAP_H

@@ -18,7 +18,10 @@ SOURCES += main.cpp \
     separablekernel.cpp \
     piramid.cpp \
     simplekernel.cpp \
-    sobelfilter.cpp
+    sobelfilter.cpp \
+    abstractdetector.cpp \
+    moravekdetector.cpp \
+    harrisdetector.cpp
 
 HEADERS += \
     smatrimage.h \
@@ -29,4 +32,7 @@ HEADERS += \
     separablekernel.h \
     piramid.h \
     simplekernel.h \
-    sobelfilter.h
+    sobelfilter.h \
+    abstractdetector.h \
+    moravekdetector.h \
+    harrisdetector.h

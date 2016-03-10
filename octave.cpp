@@ -51,6 +51,7 @@ void Octave::save(QString filename)
     for (const auto& layer : layers)
     {
         layer->saveToFile(filename+"_"+QString::number(i)+".jpg");
+        cout << layer->getAvg() << endl;
         i++;
     }
 }
