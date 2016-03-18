@@ -25,6 +25,9 @@ public:
     void saveToFile(QString filename);
     void normalize();
     double getAvg();
+    void brightness(double k);
+    void kontrast(double k);
+    void saltAndPepper(double k);
 };
 
 #endif // IMAGEMAP_H

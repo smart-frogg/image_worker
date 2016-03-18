@@ -68,8 +68,56 @@ void SmartImage::detect(char detectorName)
         case 'h':
         default:
             detector = make_unique<HarrisDetector>(data.get());
-            ((HarrisDetector*)detector.get())->configure(2,0.06,1);
+            ((HarrisDetector*)detector.get())->configure(0.1,0.06,1);
             detector->detect();
             detector->save(baseName+"_HarrisonDetector.jpg");
     }
+}
+
+void SmartImage::testDetect(char detectorName)
+{
+    unique_ptr<AbstractDetector> detector;
+    unique_ptr<ImageMap> maps[7];
+    for(int i=0;i<7;i++)
+        maps[i] = data->copy();
+    maps[1]->brightness(0.8);
+    maps[2]->brightness(1.2);
+    maps[3]->kontrast(0.1);
+    maps[4]->kontrast(1.1);
+    maps[5]->saltAndPepper(0.8);
+    maps[6]->saltAndPepper(0.5);
+    char s[2];
+    s[1]=0;
+    switch (detectorName)
+    {
+        case 'm':
+            for(int i=0;i<7;i++)
+            {
+                s[0]=i+'0';
+                detector = make_unique<MoravekDetector>(maps[i].get());
+                ((MoravekDetector*)detector.get())->configure(0.2,1);
+                detector->detect();
+                detector->save(baseName+"_MoravekDetector"+s+".jpg");
+                detector->clear(50);
+                detector->save(baseName+"_MoravekDetector"+s+"clear.jpg");
+            }
+          break;
+        case 'h':
+        default:
+            for(int i=0;i<7;i++)
+            {
+                s[0]=i+'0';
+                detector = make_unique<HarrisDetector>(maps[i].get());
+                ((HarrisDetector*)detector.get())->configure(0.09,0.06,1);
+                detector->detect();
+                detector->save(baseName+"_HarrisonDetector"+s+".jpg");
+                detector->clear(50);
+                detector->save(baseName+"_HarrisonDetector"+s+"clear.jpg");
+            }
+    }
+}
+
+void SmartImage::calcDescriptors()
+{
+
 }

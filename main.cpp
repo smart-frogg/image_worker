@@ -51,8 +51,8 @@ int main(int argc, char *argv[])
         cout << "h - Harris" << endl;
     }
     //QString fileName = "c:/WORK/study/images_data/kirpichnaya_kladka1.jpg";
-    //QString fileName = "c:/WORK/study/images_data/iris10.jpg";
-    QString fileName = "c:/WORK/study/images_data/Izyashhnyy-cvetok-iris.jpg";
+    QString fileName = "c:/WORK/study/images_data/iris10.jpg";
+   // QString fileName = "c:/WORK/study/images_data/Izyashhnyy-cvetok-iris.jpg";
     //QString fileName = "c:/WORK/study/images_data/Iris_sanguinea_01.jpg";
 
     if (argc >1)
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     {
         mode = argv[2][0];
     }
-    char readerName = 'z';
+    char readerName = 'c';
     if (argc > 2)
     {
         readerName = argv[2][0];
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
         } break;
         case 'd':
         {
-             image->detect(filterName);
+             image->testDetect(filterName);
         } break;
         case 'n':
         default: image->saveNormalize();

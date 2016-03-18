@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iostream>
 #include <numeric>
+#include <math.h>
 ImageMap::ImageMap(int height, int width)
 {
     this->height = height;
@@ -59,7 +60,7 @@ double ImageMap::getData(int x, int y) const{
         case 'z':
         default: return 0;
     }
-    data[clearX*height+clearY];
+    return data[clearX*height+clearY];
 }
 
 int ImageMap::getHeight() const {
@@ -91,11 +92,11 @@ unique_ptr<QImage> ImageMap::asImage() {
 void ImageMap::saveToFile (QString filename){
    // normalize();
     unique_ptr<QImage> image = asImage();
-    image->save(filename,"JPG");
+    image->save(filename,"JPG", 100);
 }
 void ImageMap::normalize()
 {
-     auto data_ptr = data.get();
+     double* data_ptr = &data[0];
      auto result = minmax_element(data_ptr,data_ptr+height*width);
      cout << *(result.first) << " " << *(result.second) << endl;
      double floor = *(result.second)-*(result.first);
@@ -108,6 +109,36 @@ void ImageMap::normalize()
 }
 double ImageMap::getAvg()
 {
-    auto data_ptr = data.get();
-    return accumulate(data_ptr,data_ptr+height*width,0)/(height*width);
+    double* data_ptr = &data[0];
+    return accumulate(data_ptr,data_ptr+height*width,0.)/(height*width);
+}
+
+void ImageMap::brightness(double k)
+{
+    for(int i=0; i<width*height; i++)
+    {
+        data[i] *= k;
+        if (data[i]<0)data[i]=0;
+        if (data[i]>1) data[i]=1;
+    }    //normalize();
+}
+
+void ImageMap::kontrast(double k)
+{
+    double avg = getAvg();
+    for(int i=0; i<width*height; i++)
+    {
+        data[i] += (data[i]-avg)*k;
+        if (data[i]<0)data[i]=0;
+        if (data[i]>1) data[i]=1;
+    }
+}
+
+void ImageMap::saltAndPepper(double k)
+{
+    int count = width*height*(1-k)/200;
+    for (int i=0;i<count;i++)
+        setData(1,rand()%width,rand()%height);
+    for (int i=0;i<count;i++)
+        setData(0,rand()%width,rand()%height);
 }

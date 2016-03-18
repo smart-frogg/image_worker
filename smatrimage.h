@@ -22,11 +22,14 @@ private:
     void createPiramid(int countLayers, double sigma0, double sigmaFirst);
 
 public:
+    void calcDescriptors();
+    void compare(const SmartImage &image);
     SmartImage(QString filename);
     double L(int x, int y, double sigma);
     void saveNormalize();
     void setBorderType(char border);
     void saveFiltered(FilterKernel *filter);
+    void testDetect(char detectorName);
     void savePiramid(int countLayers,double sigma0, double sigmaFirst);
     void detect(char detectorName);
 };

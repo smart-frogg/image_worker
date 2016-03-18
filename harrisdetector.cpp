@@ -1,4 +1,5 @@
 #include "harrisdetector.h"
+#include "gausskernelfactory.h"
 #include <iostream>
 
 HarrisDetector::HarrisDetector(ImageMap *data):AbstractDetector(data)
@@ -21,19 +22,36 @@ void HarrisDetector::detect()
     ImageMap *dY = sobelFilter->getImageY();
     unique_ptr<ImageMap> f = make_unique<ImageMap>(imageHeight,imageWidth);
 
+    unique_ptr<ImageMap> A = make_unique<ImageMap>(imageHeight,imageWidth);
+    unique_ptr<ImageMap> B = make_unique<ImageMap>(imageHeight,imageWidth);
+    unique_ptr<ImageMap> C = make_unique<ImageMap>(imageHeight,imageWidth);
     //auto column = make_unique<double[]>(imageHeight);
     for (unsigned int i = 0; i < imageWidth; i++)
         for (unsigned int j = 0; j < imageHeight; j++)
         {
             double cur_dX = dX->getData(i,j);
             double cur_dY = dY->getData(i,j);
-            double A = cur_dX*cur_dX;
-            double B = cur_dX*cur_dY;
-            double C = cur_dY*cur_dY;
-            double det = A*B - C*C;
-            double trace = A + B;
-            f->setData(det - k * trace * trace, i, j);
+            A->setData(cur_dX*cur_dX,i,j);
+            B->setData(cur_dX*cur_dY,i,j);
+            C->setData(cur_dY*cur_dY,i,j);
         }
+    unique_ptr<SeparableKernel> filter = GaussKernelFactory::getFilter(5);
+    A = filter->apply(*A);
+    B = filter->apply(*B);
+    C = filter->apply(*C);
+    double avg = 0;
+    for (unsigned int i = 0; i < imageWidth; i++)
+        for (unsigned int j = 0; j < imageHeight; j++)
+        {
+            double cur_A = A->getData(i,j);
+            double cur_B = B->getData(i,j);
+            double cur_C = C->getData(i,j);
+            double det = cur_A*cur_C - cur_B*cur_B;
+            double trace = cur_A + cur_C;
+            f->setData(det - k * trace * trace, i, j);
+            avg+=det - k * trace * trace;
+        }
+    cout<<(avg/(imageWidth*imageHeight))<<endl;
     for (unsigned int i = 0; i < imageWidth; i++)
         for (unsigned int j = 0; j < imageHeight; j++)
         {
@@ -47,7 +65,7 @@ void HarrisDetector::detect()
                 }
             if (isMax)
             {
-                points.push_back(Point(i,j));
+                points.emplace_back(i,j);
             }
         }
 }

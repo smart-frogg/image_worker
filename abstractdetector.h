@@ -19,6 +19,7 @@ protected:
 public:
     AbstractDetector(ImageMap *data);
     void save(QString filename);
+    void clear(int count);
     virtual void detect() = 0;
 };
 
