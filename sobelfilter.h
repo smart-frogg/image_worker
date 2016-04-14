@@ -14,6 +14,8 @@ public:
     unique_ptr<ImageMap> virtual apply(const ImageMap &data);
     ImageMap *getImageX();
     ImageMap *getImageY();
+    double getM(int x, int y);
+    double getAlpha(int x, int y);
 
 };
 

@@ -2,6 +2,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+unique_ptr<SeparableKernel> GaussKernelFactory::gaussian = GaussKernelFactory::getFilter(5.5);
 GaussKernelFactory::GaussKernelFactory()
 {
 
@@ -23,4 +24,9 @@ unique_ptr<SeparableKernel> GaussKernelFactory::getFilter(double sigma)
         fRow[i] = fCol[i];
     }
     return make_unique<SeparableKernel>(2*size+1,2*size+1,fCol,fRow);
+}
+
+void GaussKernelFactory::init()
+{
+    GaussKernelFactory::gaussian = getFilter(5.5);
 }

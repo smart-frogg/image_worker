@@ -37,3 +37,8 @@ unique_ptr<ImageMap> SeparableKernel::apply(const ImageMap &data)
         }
     return res;
 }
+
+double SeparableKernel::apply(double a, int kx, int ky)
+{
+    return fRow[width/2-kx]*fCol[height/2-ky]*a;
+}

@@ -79,9 +79,9 @@ void SmartImage::genDescriptors()
     harrisDetector = make_unique<HarrisDetector>(data.get());
     harrisDetector.get()->configure(0.02,0.06,1);
     harrisDetector->detect();
-    harrisDetector->save(baseName+"_HarrisonDetector.jpg");
+    harrisDetector->clear(40);
     harrisDetector->calcDescriptors();
-    harrisDetector->clear(100);
+    harrisDetector->save(baseName+"_HarrisonDetector.jpg");
 }
 
 vector<Descriptor> *SmartImage::getDescriptors()

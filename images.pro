@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     sobelfilter.cpp \
     abstractdetector.cpp \
     moravekdetector.cpp \
-    harrisdetector.cpp
+    harrisdetector.cpp \
+    descriptor.cpp
 
 HEADERS += \
     smatrimage.h \
@@ -35,4 +36,5 @@ HEADERS += \
     sobelfilter.h \
     abstractdetector.h \
     moravekdetector.h \
-    harrisdetector.h
+    harrisdetector.h \
+    descriptor.h

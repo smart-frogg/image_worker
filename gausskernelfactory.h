@@ -6,8 +6,10 @@
 class GaussKernelFactory
 {
 public:
-    GaussKernelFactory();
     static unique_ptr<SeparableKernel> getFilter(double sigma);
+    static unique_ptr<SeparableKernel> gaussian;
+    static void init();
+    GaussKernelFactory();
 };
 
 #endif // GAUSSKERNELFACTORY_H

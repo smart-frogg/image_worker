@@ -1,7 +1,7 @@
 #include "harrisdetector.h"
 #include "gausskernelfactory.h"
 #include <iostream>
-
+#define TRESHOLD 0.8
 HarrisDetector::HarrisDetector(ImageMap *data):AbstractDetector(data)
 {
     sobelFilter = make_unique<SobelFilter>();
@@ -69,20 +69,42 @@ void HarrisDetector::detect()
             }
         }
 }
-Histogram::Histogram()
-{
-    for(int i=0;i<BUSKETS_COUNT;i++)
-        buskets[i]=0;
-}
 
 void HarrisDetector::calcDescriptors()
 {
-    vector<Point> pts = isClear ? getPoints(): points;
-    int i=0;
-    for(Point p:pts)
+    for(int i=0;i<points.size();i++)
     {
-        descriptors.push_back(Descriptor(p,sobelFilter.get()));
-        i++;
+        if (!isClear || usingPoints[i])
+        {
+            if (!points[i].isClone)
+                 calcDirection(points[i]);
+            descriptors.push_back(Descriptor(points[i],sobelFilter.get()));
+        }
+    }
+}
+
+void HarrisDetector::calcDirection(Point &p)
+{
+    Histogram hist(BIG_BUSKETS_COUNT);
+    for(int i=-4;i<4;i++)
+        for(int j=-4;j<4;j++)
+        {
+            double m = sobelFilter->getM(p.x+i,p.y+j);
+            GaussKernelFactory::gaussian->apply(m,i,j);
+            hist.put(m,sobelFilter->getAlpha(p.x+i,p.y+j));
+        }
+    hist.normalize();
+    hist.crop();
+    hist.normalize();
+    hist.calcMax(TRESHOLD);
+    p.orientation = hist.getFirstMax();
+    double alpha2 = hist.getSecondMax();
+    if (alpha2 > 0)
+    {
+        Point p1(p);
+        p1.orientation = alpha2;
+        points.push_back(p1);
+        usingPoints[points.size()-1] = true;
     }
 }
 
@@ -91,53 +113,7 @@ vector<Descriptor> *HarrisDetector::getDescriptors()
     return &descriptors;
 }
 
-Descriptor::Descriptor(const Point &point, SobelFilter *sobelFilter)
-{
-    this->point = Point(point);
-    this->sobelFilter = sobelFilter;
-    clothest=NULL;
-    calc(0,-4,-4,4);
-    calc(1,0,-4,4);
-    calc(2,-4,0,4);
-    calc(3,0,0,4);
-}
 
-double Descriptor::destination(Descriptor descriptor)
-{
-    double sum = 0;
-    for(int i=0;i<4;i++)
-    {
-        sum += hists[i].destination(descriptor.hists[i]);
-    }
-    //cout<<sum<<endl;
-    return sum;
-}
-
-double Histogram::destination(Histogram hist)
-{
-    double sum = 0;
-    for(int i=0;i<BUSKETS_COUNT;i++)
-    {
-        sum += (buskets[i]-hist.buskets[i])*(buskets[i]-hist.buskets[i]);
-    }
-    return sum;
-}
-
-void Descriptor::findClothest(vector<Descriptor> *descriptors)
-{
-    double minDestination = -1;
-    clothest = NULL;
-    for (int i=0,n=descriptors->size();i<n;i++)
-    {
-        double dest = destination((*descriptors)[i]);
-        if (dest < minDestination || minDestination < 0)
-        {
-            minDestination = dest;
-            clothest = &((*descriptors)[i]);
-        }
-    }
-    cout<<minDestination<<endl;
-}
 
 void HarrisDetector::saveCompare(QString filename, ImageMap *data2)
 {
@@ -149,8 +125,7 @@ void HarrisDetector::saveCompare(QString filename, ImageMap *data2)
     painter->drawImage(this->data->getWidth(),0,*image2);
     painter->setBrush(Qt::green);
 
-    vector<Descriptor> *descs = getDescriptors();
-    for(Descriptor &d:*descs)
+    for(Descriptor &d:descriptors)
     {
         painter->setPen(qRgb(rand()%255,rand()%255,rand()%255));
         Point *p1 = d.getPoint();
@@ -163,61 +138,6 @@ void HarrisDetector::saveCompare(QString filename, ImageMap *data2)
     result->save(filename,"JPG", 100);
 }
 
-void Descriptor::calc(int histNum, int startX, int startY, int size)
-{
-    ImageMap *dX = sobelFilter->getImageX();
-    ImageMap *dY = sobelFilter->getImageY();
-    for(int i=point.x+startX;i<point.x+startX+size;i++)
-        for(int j=point.y+startY;j<point.y+startY+size;j++)
-        {
-            hists[histNum].put(dX->getData(i,j),dY->getData(i,j));
-        }
-     hists[histNum].normalize();
-     hists[histNum].crop();
-     hists[histNum].normalize();
-}
-
-Point* Descriptor::getPoint()
-{
-    return &point;
-}
-
-Descriptor* Descriptor::getClothest()
-{
-    return clothest;
-}
 
 
-void Histogram::normalize()
-{
-    auto result = minmax_element(buskets,buskets+BUSKETS_COUNT);
-    double floor = *(result.second)-*(result.first);
-    if (floor<0.0000001)
-        return;
-    for (int i=0;i<BUSKETS_COUNT;i++)
-    {
-        buskets[i] = (buskets[i]-*(result.first))/floor;
-    }
-}
-void Histogram::crop()
-{
-    for (int i=0;i<BUSKETS_COUNT;i++)
-    {
-        if (buskets[i]>0.2) buskets[i] = 0.2;
-    }
-}
 
-void Histogram::put(double dX, double dY)
-{
-    double phi = atan2(dY,dX);
-    if (phi<0)
-        phi+=2*M_PI;
-    double m = sqrt(dX*dX+dY*dY);
-    double fragment = 2*M_PI/(BUSKETS_COUNT);
-    int iMin = phi/fragment;
-    double r1 = phi - iMin*fragment;
-    double r2 = (1+iMin)*fragment - phi;
-   // cout <<r1<<" "<<r2<<endl;
-    buskets[iMin] += r2*m/fragment;
-    buskets[iMin+1] += r1*m/fragment;
-}

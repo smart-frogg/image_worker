@@ -12,14 +12,23 @@ Point::Point (const Point &p)
 {
     this->x = p.x;
     this->y = p.y;
+    isClone = true;
+}
+double Point::angle(int x, int y) const
+{
+    double phi = atan2(y-this->y,x-this->x);
+    if (phi<0) phi+=2*M_PI;
+    phi-=orientation;
+    if (phi<0) phi+=2*M_PI;
+    return phi;
 }
 
-double Point::destination (Point p)
+double Point::destination (Point p) const
 {
     return (x-p.x)*(x-p.x) + (y-p.y)*(y-p.y);
 }
 
-double Point::destination (int x, int y)
+double Point::destination (int x, int y) const
 {
     return (x-this->x)*(x-this->x) + (y-this->y)*(y-this->y);
 }
@@ -48,7 +57,9 @@ void AbstractDetector::save(QString filename)
 void AbstractDetector::clear(int count)
 {
     isClear = true;
-    usingPoints = make_unique<bool[]>(points.size());
+    usingPoints = make_unique<bool[]>(2*points.size());
+    for(int i=0;i<2*points.size();i++)
+        usingPoints[i] = false;
     if (points.size()<=count)
     {
         for(int i=0;i<points.size();i++)

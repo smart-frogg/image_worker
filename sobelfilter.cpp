@@ -51,3 +51,17 @@ ImageMap *SobelFilter::getImageY()
     return imageY.get();
 }
 
+double SobelFilter::getAlpha(int x, int y)
+{
+    double phi = atan2(imageY->getData(x,y),imageX->getData(x,y));
+    if (phi<0)
+        phi+=2*M_PI;
+    return phi;
+}
+
+double SobelFilter::getM(int x, int y)
+{
+    double dX = imageX->getData(x,y);
+    double dY = imageY->getData(x,y);
+    return sqrt(dX*dX+dY*dY);
+}

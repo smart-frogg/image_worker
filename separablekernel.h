@@ -10,6 +10,7 @@ private:
 public:
     SeparableKernel(int height, int width, unique_ptr<double[]> &fCol, unique_ptr<double[]> &fRow) ;
     unique_ptr<ImageMap> apply(const ImageMap &data) ;
+    double apply(double a, int kx, int ky);
 };
 
 #endif // SEPARABLEKERNEL_H

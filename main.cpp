@@ -30,6 +30,7 @@ unique_ptr<FilterKernel> getFilter(char filterName)
 
 int main(int argc, char *argv[])
 {
+
     if (argc > 0 && argv[0][0] =='?')
     {
         cout << "first parameter is the file name " << endl;
