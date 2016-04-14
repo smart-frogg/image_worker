@@ -68,10 +68,41 @@ void SmartImage::detect(char detectorName)
         case 'h':
         default:
             detector = make_unique<HarrisDetector>(data.get());
-            ((HarrisDetector*)detector.get())->configure(0.1,0.06,1);
+            ((HarrisDetector*)detector.get())->configure(0.02,0.06,1);
             detector->detect();
             detector->save(baseName+"_HarrisonDetector.jpg");
     }
+}
+
+void SmartImage::genDescriptors()
+{
+    harrisDetector = make_unique<HarrisDetector>(data.get());
+    harrisDetector.get()->configure(0.02,0.06,1);
+    harrisDetector->detect();
+    harrisDetector->save(baseName+"_HarrisonDetector.jpg");
+    harrisDetector->calcDescriptors();
+    harrisDetector->clear(100);
+}
+
+vector<Descriptor> *SmartImage::getDescriptors()
+{
+    return harrisDetector->getDescriptors();
+}
+
+void SmartImage::compare(SmartImage *img)
+{
+    genDescriptors();
+    img->genDescriptors();
+    vector<Descriptor> *descriptors1 = getDescriptors();
+    vector<Descriptor> *descriptors2 = img->getDescriptors();
+    for(int i=0,n=descriptors1->size();i<n;i++)
+        (*descriptors1)[i].findClothest(descriptors2);
+    harrisDetector->saveCompare(baseName+"_compare.jpg",img->getImageMap());
+}
+
+ImageMap* SmartImage::getImageMap()
+{
+    return data.get();
 }
 
 void SmartImage::testDetect(char detectorName)
@@ -108,7 +139,7 @@ void SmartImage::testDetect(char detectorName)
             {
                 s[0]=i+'0';
                 detector = make_unique<HarrisDetector>(maps[i].get());
-                ((HarrisDetector*)detector.get())->configure(0.09,0.06,1);
+                ((HarrisDetector*)detector.get())->configure(0.02,0.06,1);
                 detector->detect();
                 detector->save(baseName+"_HarrisonDetector"+s+".jpg");
                 detector->clear(50);
@@ -117,7 +148,4 @@ void SmartImage::testDetect(char detectorName)
     }
 }
 
-void SmartImage::calcDescriptors()
-{
 
-}

@@ -8,6 +8,12 @@ Point::Point(int x, int y)
     this->y = y;
 }
 
+Point::Point (const Point &p)
+{
+    this->x = p.x;
+    this->y = p.y;
+}
+
 double Point::destination (Point p)
 {
     return (x-p.x)*(x-p.x) + (y-p.y)*(y-p.y);
@@ -29,7 +35,9 @@ void AbstractDetector::save(QString filename)
     unique_ptr<QPainter> painter = make_unique<QPainter>(image.get());
     painter->setBrush(Qt::green);
     painter->setPen(Qt::blue);
-    for(Point p:points)
+
+    vector<Point> pts = isClear ? getPoints(): points;
+    for(Point p:pts)
     {
         painter->drawEllipse(p.x-2,p.y-2,5,5);
         //image->setPixel(p.x,p.y,qRgb(255,0,0));
@@ -39,14 +47,21 @@ void AbstractDetector::save(QString filename)
 
 void AbstractDetector::clear(int count)
 {
-    if (points.size()<=count) return;
+    isClear = true;
+    usingPoints = make_unique<bool[]>(points.size());
+    if (points.size()<=count)
+    {
+        for(int i=0;i<points.size();i++)
+            usingPoints[i] = true;
+        return;
+    }
     int height = data->getHeight();
     int width = data->getWidth();
     int rMax = height > width ? width : height;
-    vector<Point> res;
     for(int r=0; r<rMax; r++)
     {
-        res.clear();
+        int i=0;
+        int resCount = 0;
         for(Point p:points)
         {
             bool isMax = true;
@@ -55,16 +70,24 @@ void AbstractDetector::clear(int count)
             {
                 isMax &= cur > 0.9*data->getData(pi.x,pi.y);
             }
-            if (isMax)
-            {
-               res.push_back(p);
-            }
+            usingPoints[i] = isMax;
+            resCount += usingPoints[i];
+            i++;
         }
      //   cout<<r<<" "<<res.size()<<endl;
-        if (res.size()<=count)
+        if (resCount<=count)
         {
-            points = res;
             return;
         }
     }
+}
+vector<Point> AbstractDetector::getPoints()
+{
+    vector<Point> activePoints;
+    for(int i=0;i<points.size();i++)
+    {
+        if(usingPoints[i])
+            activePoints.push_back(points[i]);
+    }
+    return activePoints;
 }

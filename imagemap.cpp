@@ -98,7 +98,7 @@ void ImageMap::normalize()
 {
      double* data_ptr = &data[0];
      auto result = minmax_element(data_ptr,data_ptr+height*width);
-     cout << *(result.first) << " " << *(result.second) << endl;
+     //cout << *(result.first) << " " << *(result.second) << endl;
      double floor = *(result.second)-*(result.first);
      for(int i=0; i<width; i++)
          for(int j=0; j<height; j++)

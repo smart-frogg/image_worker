@@ -81,25 +81,25 @@ void HarrisDetector::calcDescriptors()
     int i=0;
     for(Point p:pts)
     {
-        descriptors.push_back(Descriptor(p,sobelFilter.get()));
+        descriptors.push_back(Descriptor(&p,sobelFilter.get()));
+        cout<<i<<endl;
         i++;
     }
 }
 
-vector<Descriptor> *HarrisDetector::getDescriptors()
+vector<Descriptor> HarrisDetector::getDescriptors()
 {
-    return &descriptors;
+    return descriptors;
 }
 
-Descriptor::Descriptor(const Point &point, SobelFilter *sobelFilter)
+Descriptor::Descriptor(Point *point, SobelFilter *sobelFilter)
 {
-    this->point = Point(point);
+    this->point = point;
     this->sobelFilter = sobelFilter;
-    clothest=NULL;
     calc(0,-4,-4,4);
-    calc(1,0,-4,4);
-    calc(2,-4,0,4);
-    calc(3,0,0,4);
+    calc(1,1,-4,4);
+    calc(2,-4,1,4);
+    calc(3,1,1,4);
 }
 
 double Descriptor::destination(Descriptor descriptor)
@@ -109,7 +109,7 @@ double Descriptor::destination(Descriptor descriptor)
     {
         sum += hists[i].destination(descriptor.hists[i]);
     }
-    //cout<<sum<<endl;
+    cout<<sum<<endl;
     return sum;
 }
 
@@ -123,17 +123,16 @@ double Histogram::destination(Histogram hist)
     return sum;
 }
 
-void Descriptor::findClothest(vector<Descriptor> *descriptors)
+void Descriptor::findClothest(vector<Descriptor> descriptors)
 {
     double minDestination = -1;
-    clothest = NULL;
-    for (int i=0,n=descriptors->size();i<n;i++)
+    for (auto descriptor : descriptors)
     {
-        double dest = destination((*descriptors)[i]);
+        double dest = destination(descriptor);
         if (dest < minDestination || minDestination < 0)
         {
             minDestination = dest;
-            clothest = &((*descriptors)[i]);
+            clothest = &descriptor;
         }
     }
     cout<<minDestination<<endl;
@@ -148,11 +147,11 @@ void HarrisDetector::saveCompare(QString filename, ImageMap *data2)
     painter->drawImage(0,0,*image);
     painter->drawImage(this->data->getWidth(),0,*image2);
     painter->setBrush(Qt::green);
+    painter->setPen(Qt::blue);
 
-    vector<Descriptor> *descs = getDescriptors();
-    for(Descriptor &d:*descs)
+    vector<Descriptor> descs = getDescriptors();
+    for(Descriptor d:descs)
     {
-        painter->setPen(qRgb(rand()%255,rand()%255,rand()%255));
         Point *p1 = d.getPoint();
         Point *p2 = d.getClothest()->getPoint();
         painter->drawLine(p1->x,p1->y,p2->x + this->data->getWidth(),p2->y);
@@ -167,8 +166,8 @@ void Descriptor::calc(int histNum, int startX, int startY, int size)
 {
     ImageMap *dX = sobelFilter->getImageX();
     ImageMap *dY = sobelFilter->getImageY();
-    for(int i=point.x+startX;i<point.x+startX+size;i++)
-        for(int j=point.y+startY;j<point.y+startY+size;j++)
+    for(int i=startX;i<startX+size;i++)
+        for(int j=startY;j<startY+size;j++)
         {
             hists[histNum].put(dX->getData(i,j),dY->getData(i,j));
         }
@@ -179,7 +178,7 @@ void Descriptor::calc(int histNum, int startX, int startY, int size)
 
 Point* Descriptor::getPoint()
 {
-    return &point;
+    return point;
 }
 
 Descriptor* Descriptor::getClothest()
@@ -209,7 +208,13 @@ void Histogram::crop()
 
 void Histogram::put(double dX, double dY)
 {
-    double phi = atan2(dY,dX);
+    double phi;
+    if (dY != 0)
+        phi = atan(dX/dY)+(dX<0?M_PI:0);
+    else if (dX < 0)
+        phi = M_PI;
+    else
+        phi = 0;
     if (phi<0)
         phi+=2*M_PI;
     double m = sqrt(dX*dX+dY*dY);

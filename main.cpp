@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
         fileName = argv[1];
     unique_ptr<SmartImage>  image = make_unique<SmartImage>(fileName);
 
-    char mode = 'd';
+    char mode = 'c';
     if (argc > 2)
     {
         mode = argv[2][0];
@@ -94,6 +94,13 @@ int main(int argc, char *argv[])
         case 'd':
         {
              image->testDetect(filterName);
+        } break;
+        case 'c':
+        {
+            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("c:/WORK/study/images_data/sagrada.jpg");
+            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("c:/WORK/study/images_data/sagrada2.jpg");
+            image1->compare(image2.get());
+
         } break;
         case 'n':
         default: image->saveNormalize();
