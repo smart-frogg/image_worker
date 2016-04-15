@@ -21,7 +21,7 @@ private:
     void normalize();
     void createPiramid(int countLayers, double sigma0, double sigmaFirst);
     unique_ptr<HarrisDetector> harrisDetector;
-
+    vector<Descriptor> descriptors;
 public:
     void compare(SmartImage *img);
     SmartImage(QString filename);
@@ -33,6 +33,7 @@ public:
     void savePiramid(int countLayers,double sigma0, double sigmaFirst);
     void detect(char detectorName);
     void genDescriptors();
+    void genDescriptorsPiramid();
     vector<Descriptor> *getDescriptors();
     ImageMap* getImageMap();
 };

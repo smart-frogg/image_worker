@@ -2,7 +2,7 @@
 #define IMAGEMAP_H
 #include <memory>
 #include <QtGui>
-
+#define BASE_PATH "c:/WORK/study/images_data/"
 using namespace std;
 
 class ImageMap

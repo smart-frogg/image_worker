@@ -19,12 +19,14 @@ void Piramid::calculateOctavs(const ImageMap &input)
     double sigma = sqrt(sigmaFirst*sigmaFirst - sigma0*sigma0);
     unique_ptr<FilterKernel> filter = GaussKernelFactory::getFilter(sigma);
     unique_ptr<ImageMap> curr = filter->apply(input);
+    int i = 0;
     while (size > MIN_SIZE)
     {
-        octavs.push_back(make_unique<Octave>(countLayers, sigmaFirst, *curr));
+        octavs.push_back(make_unique<Octave>(countLayers, sigmaFirst, i, *curr));
         const auto& octave = octavs.back();
         curr = octave->scale();
         size = min(curr->getHeight(),curr->getWidth());
+        i++;
     }
 }
 
@@ -36,6 +38,16 @@ void Piramid::save(QString filename)
         octave->save(filename+"_"+QString::number(i));
         i++;
     }
+}
+
+unique_ptr<vector<Descriptor>> Piramid::genDescriptors()
+{
+    unique_ptr<vector<Descriptor>> descriptors = make_unique<vector<Descriptor>>();
+    for(const auto & octave : octavs)
+    {
+        octave->genDescriptors(descriptors.get());
+    }
+    return descriptors;
 }
 
 double Piramid::L(int x,int y,double sigma)

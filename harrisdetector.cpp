@@ -70,7 +70,22 @@ void HarrisDetector::detect()
         }
 }
 
-void HarrisDetector::calcDescriptors()
+void HarrisDetector::calcDescriptors(double sigma)
+{
+    calcDescriptors(sigma, &descriptors);
+   /* for(int i=0;i<points.size();i++)
+    {
+        if (!isClear || usingPoints[i])
+        {
+            if (!points[i].isClone)
+                 calcDirection(points[i]);
+            points[i].sigma = sigma;
+            descriptors.push_back(Descriptor(points[i],sobelFilter.get()));
+        }
+    }*/
+}
+
+void HarrisDetector::calcDescriptors(double sigma,vector<Descriptor> *descriptors)
 {
     for(int i=0;i<points.size();i++)
     {
@@ -78,7 +93,8 @@ void HarrisDetector::calcDescriptors()
         {
             if (!points[i].isClone)
                  calcDirection(points[i]);
-            descriptors.push_back(Descriptor(points[i],sobelFilter.get()));
+            points[i].sigma = sigma;
+            descriptors->push_back(Descriptor(points[i],sobelFilter.get()));
         }
     }
 }

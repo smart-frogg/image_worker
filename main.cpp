@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         cout << "h - Harris" << endl;
     }
     //QString fileName = "c:/WORK/study/images_data/kirpichnaya_kladka1.jpg";
-    QString fileName = "c:/WORK/study/images_data/iris10.jpg";
+    QString fileName = "c:/WORK/study/images_data/Church1.jpg";
    // QString fileName = "c:/WORK/study/images_data/Izyashhnyy-cvetok-iris.jpg";
     //QString fileName = "c:/WORK/study/images_data/Iris_sanguinea_01.jpg";
 
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
         fileName = argv[1];
     unique_ptr<SmartImage>  image = make_unique<SmartImage>(fileName);
 
-    char mode = 'c';
+    char mode = 'p';
     if (argc > 2)
     {
         mode = argv[2][0];
@@ -88,9 +88,10 @@ int main(int argc, char *argv[])
         } break;
         case 'p':
         {
-            image->saveNormalize();
-            image->savePiramid(6,0.5,1.);
-            cout << "value is " << image->L(3,3,3) << endl;
+           // image->saveNormalize();
+           // image->savePiramid(6,0.5,1.);
+            image->genDescriptorsPiramid();
+           // cout << "value is " << image->L(3,3,3) << endl;
         } break;
         case 'd':
         {

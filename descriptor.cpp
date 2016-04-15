@@ -162,9 +162,8 @@ void Histogram::put(double m, double phi)
     {
       //  cout <<" "<<phi<<" up " <<endl;
         phi+=2*M_PI;
-        if (phi<0)
-            phi = 0;
-    }    double fragment = 2*M_PI/size;
+    }
+    double fragment = 2*M_PI/size;
     int iMin = phi/fragment;
     double r1 = phi - iMin*fragment;
     double r2 = (1+iMin)*fragment - phi;

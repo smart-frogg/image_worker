@@ -14,7 +14,8 @@ protected:
     int winR;
     vector<Descriptor> descriptors;
 public:
-    void calcDescriptors();
+    void calcDescriptors(double sigma);
+    void calcDescriptors(double sigma, vector<Descriptor> *descriptors);
     vector<Descriptor> *getDescriptors();
     HarrisDetector(ImageMap *data);
     void configure(double T, double k, int winR);

@@ -1,12 +1,14 @@
 #include "octave.h"
+#include "config.h"
 #include "gausskernelfactory.h"
 #include <math.h>
 #include <iostream>
 
-Octave::Octave(int countLayers, double sigma, const ImageMap &input)
+Octave::Octave(int countLayers, double sigma, int scale, const ImageMap &input)
 {
     this->countLayers = countLayers;
     this->sigmaFirst = sigma;
+    this->scaleSize = scale;
     this->height = input.getHeight();
     this->width = input.getWidth();
     calculateLayers(input);
@@ -28,7 +30,22 @@ void Octave::calculateLayers(const ImageMap &input)
         unique_ptr<FilterKernel> filter = GaussKernelFactory::getFilter(curSigma);
         layers.push_back(filter->apply(input));
     }
-
+}
+void Octave::genDescriptors(vector<Descriptor> *descriptors)
+{
+    double curSigma = sigmaFirst;
+    double step = getStep();
+    for (int i=0; i<countLayers; i++)
+    {
+        curSigma *= step;
+        unique_ptr<HarrisDetector> harrisDetector = make_unique<HarrisDetector>(layers[i].get());
+        harrisDetector->configure(0.01,0.06,1);
+        harrisDetector->detect();
+        harrisDetector->clear(100);
+        harrisDetector->calcDescriptors(curSigma,descriptors);
+        harrisDetector->calcDescriptors(curSigma);
+        harrisDetector->save(BASE_PATH+QString::number(scaleSize)+"_"+QString::number(i)+"_HarrisonDetector.jpg");
+    }
 }
 
 unique_ptr<ImageMap> Octave::scale()

@@ -80,8 +80,14 @@ void SmartImage::genDescriptors()
     harrisDetector.get()->configure(0.02,0.06,1);
     harrisDetector->detect();
     harrisDetector->clear(40);
-    harrisDetector->calcDescriptors();
-    harrisDetector->save(baseName+"_HarrisonDetector.jpg");
+    harrisDetector->calcDescriptors(0.5);
+//    harrisDetector->save(baseName+"_HarrisonDetector.jpg");
+}
+
+void SmartImage::genDescriptorsPiramid()
+{
+    createPiramid(10,0.5,1.);
+    piramid->genDescriptors();
 }
 
 vector<Descriptor> *SmartImage::getDescriptors()

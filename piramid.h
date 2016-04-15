@@ -15,6 +15,7 @@ private:
 public:
     double L(int x, int y, double sigma);
     void save(QString filename);
+    unique_ptr<vector<Descriptor>> genDescriptors();
     Piramid(int countLayers, double sigma0, double sigmaFirst, const ImageMap &input);
 };
 

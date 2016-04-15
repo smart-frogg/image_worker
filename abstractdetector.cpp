@@ -12,6 +12,8 @@ Point::Point (const Point &p)
 {
     this->x = p.x;
     this->y = p.y;
+    this->sigma = p.sigma;
+    this->orientation = p.orientation;
     isClone = true;
 }
 double Point::angle(int x, int y) const
