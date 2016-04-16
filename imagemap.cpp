@@ -80,12 +80,16 @@ unique_ptr<ImageMap> ImageMap::copy() const
 }
 unique_ptr<QImage> ImageMap::asImage() {
     unique_ptr<QImage> image = make_unique<QImage>(width, height, QImage::Format_RGB32);
+    double *data_ptr = data.get();
+    auto result = minmax_element(data_ptr,data_ptr+height*width);
+    double min = *(result.first);
+    if (min>0) min = 0;
     for(int i=0; i<width; i++)
         for(int j=0; j<height; j++)
         {
-            int brightness = (int)(getData(i, j)*255);
+            int brightness = (int)((getData(i, j)-min)*255);
             if (brightness<0)
-                cout<<"!";
+                brightness=0;
             image->setPixel(i,j,qRgb(brightness,brightness,brightness));
         }
     return image;

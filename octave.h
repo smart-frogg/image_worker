@@ -17,6 +17,8 @@ private:
 public:
     vector<unique_ptr<ImageMap>> layers;
     vector<unique_ptr<ImageMap>> dogs;
+
+    unique_ptr<ImageMap> genOneDOG(int i);
     void genDOG();
     double getStep();
     double L(int x,int y,double sigma);

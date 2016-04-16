@@ -84,16 +84,23 @@ void Octave::genDOG()
 {
     for (int i=1;i<layers.size();i++)
     {
-        unique_ptr<ImageMap> image = make_unique<ImageMap>(layers[0]->getHeight(),layers[0]->getWidth());
-        for(int x=0;x<layers[0]->getWidth();x++)
-            for(int y=0;y<layers[0]->getHeight();y++)
-            {
-                double value = layers[i]->getData(x,y)-layers[i-1]->getData(x,y);
-                image->setData(value,x,y);
-            }
-        dogs.push_back(move(image));
+        dogs.push_back(genOneDOG(i));
     }
 }
+
+unique_ptr<ImageMap> Octave::genOneDOG(int i)
+{
+    unique_ptr<ImageMap> image = make_unique<ImageMap>(layers[0]->getHeight(),layers[0]->getWidth());
+    for(int x=0;x<layers[i]->getWidth();x++)
+        for(int y=0;y<layers[i]->getHeight();y++)
+        {
+            double value = layers[i]->getData(x,y)-layers[i-1]->getData(x,y);
+            image->setData(value,x,y);
+        }
+    image->saveToFile(BASE_PATH+QString::number(scaleSize)+"_"+QString::number(i)+"_DOG.jpg");
+    return image;
+}
+
 void Octave::saveDOG(QString filename)
 {
     unique_ptr<ImageMap> image = make_unique<ImageMap>(layers[0]->getHeight(),layers[0]->getWidth());

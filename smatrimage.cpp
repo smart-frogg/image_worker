@@ -86,9 +86,9 @@ void SmartImage::genDescriptors()
 
 void SmartImage::genDescriptorsPiramid()
 {
-    createPiramid(6,0.5,1.);
+    createPiramid(10,0.5,1.);
     //piramid->save(baseName);
-    piramid->saveDOG(baseName);
+    //piramid->saveDOG(baseName);
     unique_ptr<BlobDetector> detector = make_unique<BlobDetector>(piramid.get());
     detector->detect();
     detector->save(baseName);

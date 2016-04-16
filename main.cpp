@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         cout << "h - Harris" << endl;
     }
     //QString fileName = "c:/WORK/study/images_data/kirpichnaya_kladka1.jpg";
-    QString fileName = "c:/WORK/study/images_data/black.jpg";
+    QString fileName = "c:/WORK/study/images_data/rudbekia.jpg";
    // QString fileName = "c:/WORK/study/images_data/Izyashhnyy-cvetok-iris.jpg";
     //QString fileName = "c:/WORK/study/images_data/Iris_sanguinea_01.jpg";
 

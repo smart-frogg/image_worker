@@ -49,8 +49,9 @@ void BlobDetector::detect()
                     bool isMax = true;
                     bool isMin = true;
                     double val = img->getData(x,y);//* sigma;
-                    //if(val<0.01) continue;
+                    if(val<0.01 && val>-0.01) continue;
                     //double ds =  sigma/sigmaStep;
+                    //int dl = layerID;
                     for (int dl = layerID-1; dl <= layerID+1; dl++)
                     {
                         ImageMap* img1 =  data->octavs[oID]->dogs[dl].get();
