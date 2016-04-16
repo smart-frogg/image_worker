@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         cout << "h - Harris" << endl;
     }
     //QString fileName = "c:/WORK/study/images_data/kirpichnaya_kladka1.jpg";
-    QString fileName = "c:/WORK/study/images_data/Church1.jpg";
+    QString fileName = "c:/WORK/study/images_data/black.jpg";
    // QString fileName = "c:/WORK/study/images_data/Izyashhnyy-cvetok-iris.jpg";
     //QString fileName = "c:/WORK/study/images_data/Iris_sanguinea_01.jpg";
 
@@ -99,8 +99,8 @@ int main(int argc, char *argv[])
         } break;
         case 'c':
         {
-            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("c:/WORK/study/images_data/sagrada.jpg");
-            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("c:/WORK/study/images_data/sagrada2.jpg");
+            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("c:/WORK/study/images_data/Church1.jpg");
+            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("c:/WORK/study/images_data/Church10.jpg");
             image1->compare(image2.get());
 
         } break;

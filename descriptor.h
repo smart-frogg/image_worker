@@ -35,6 +35,7 @@ private:
     Histogram calc(int startX, int startY, int size);
     Descriptor *clothest;
 public:
+    bool used = true;
     void calc(int histNum, int startX, int startY, int size);
     double destination(const Descriptor &descriptor) const;
     Descriptor(const Point &point, SobelFilter *sobelFilter);

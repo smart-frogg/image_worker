@@ -7,13 +7,13 @@ ImageMap::ImageMap(int height, int width)
 {
     this->height = height;
     this->width = width;
-    this->borderType = 'z';
+    this->borderType = 'c';
     data = make_unique<double[]>(height*width);
 }
 
 void ImageMap::setData(double value, unsigned int x, unsigned int y)
 {
-    data[x*height+y] = value;
+    data[y*width+x] = value;
 }
 void ImageMap::setBorderType(char borderType)
 {
@@ -22,7 +22,7 @@ void ImageMap::setBorderType(char borderType)
 
 double ImageMap::getData(int x, int y) const{
     if (x >=0 && y >=0 && x<width && y<height)
-       return data[x*height+y];
+       return data[y*width+x];
     int clearY = y;
     int clearX = x;
     switch (borderType)
@@ -60,7 +60,7 @@ double ImageMap::getData(int x, int y) const{
         case 'z':
         default: return 0;
     }
-    return data[clearX*height+clearY];
+    return data[clearY*width+clearX];
 }
 
 int ImageMap::getHeight() const {
@@ -84,6 +84,8 @@ unique_ptr<QImage> ImageMap::asImage() {
         for(int j=0; j<height; j++)
         {
             int brightness = (int)(getData(i, j)*255);
+            if (brightness<0)
+                cout<<"!";
             image->setPixel(i,j,qRgb(brightness,brightness,brightness));
         }
     return image;
@@ -96,14 +98,19 @@ void ImageMap::saveToFile (QString filename){
 }
 void ImageMap::normalize()
 {
-     double* data_ptr = &data[0];
+     double *data_ptr = data.get();
      auto result = minmax_element(data_ptr,data_ptr+height*width);
      //cout << *(result.first) << " " << *(result.second) << endl;
-     double floor = *(result.second)-*(result.first);
+     double min = *(result.first);
+     double floor = *(result.second)-min;
      for(int i=0; i<width; i++)
          for(int j=0; j<height; j++)
          {
-             setData((getData(i,j)-*(result.first))/floor,i,j);
+             double dataVal = getData(i,j);
+             double val = (getData(i,j)-min)/floor;
+             if (val<0)
+                 cout<<"?";
+             setData(val,i,j);
              //cout << (getData(i,j)-*(result.first))/floor<<" ";
          }
 }

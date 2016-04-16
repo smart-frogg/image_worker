@@ -12,16 +12,21 @@ private:
     int countLayers;
     double sigmaFirst;
     int scaleSize;
-    vector<unique_ptr<ImageMap>> layers;
     void calculateLayers(const ImageMap &input);
 
 public:
+    vector<unique_ptr<ImageMap>> layers;
+    vector<unique_ptr<ImageMap>> dogs;
+    void genDOG();
     double getStep();
     double L(int x,int y,double sigma);
     void save(QString filename);
+    int size();
+    unique_ptr<QImage> asImage();
     unique_ptr<ImageMap> scale();
     void genDescriptors(vector<Descriptor> *descriptors);
     Octave(int countLayers, double sigma, int scale, const ImageMap &input);
+    void saveDOG(QString filename);
 };
 
 #endif // OCTAVE_H

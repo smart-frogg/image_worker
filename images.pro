@@ -22,6 +22,7 @@ SOURCES += main.cpp \
     abstractdetector.cpp \
     moravekdetector.cpp \
     harrisdetector.cpp \
+    blobdetector.cpp \
     descriptor.cpp
 
 HEADERS += \
@@ -37,4 +38,5 @@ HEADERS += \
     abstractdetector.h \
     moravekdetector.h \
     harrisdetector.h \
+    blobdetector.h \
     descriptor.h

@@ -6,6 +6,8 @@ struct Point
 {
     int x;
     int y;
+    int scale = 1;
+    int count = 0;
     boolean isClone = false;
     double sigma = 0.5;
     double orientation = 0;
@@ -15,6 +17,7 @@ struct Point
     double destination (Point p) const;
     double destination (int x, int y) const;
     double angle(int x, int y) const;
+    void setSigma(double sigma);
 };
 
 class AbstractDetector

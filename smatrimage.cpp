@@ -86,8 +86,15 @@ void SmartImage::genDescriptors()
 
 void SmartImage::genDescriptorsPiramid()
 {
-    createPiramid(10,0.5,1.);
-    piramid->genDescriptors();
+    createPiramid(6,0.5,1.);
+    //piramid->save(baseName);
+    piramid->saveDOG(baseName);
+    unique_ptr<BlobDetector> detector = make_unique<BlobDetector>(piramid.get());
+    detector->detect();
+    detector->save(baseName);
+    //piramid->genDescriptors();
+    //piramid->findGoodPoints();
+    //piramid->saveDescriptors(baseName);
 }
 
 vector<Descriptor> *SmartImage::getDescriptors()
@@ -103,6 +110,12 @@ void SmartImage::compare(SmartImage *img)
     vector<Descriptor> *descriptors2 = img->getDescriptors();
     for(int i=0,n=descriptors1->size();i<n;i++)
         (*descriptors1)[i].findClothest(descriptors2);
+    for(int i=0,n=descriptors2->size();i<n;i++)
+        (*descriptors2)[i].findClothest(descriptors1);
+    for(int i=0,n=descriptors1->size();i<n;i++)
+        if((*descriptors1)[i].getClothest()->getClothest()->getPoint()->destination(*((*descriptors1)[i].getPoint()))>4)
+            (*descriptors1)[i].used = false;
+
     harrisDetector->saveCompare(baseName+"_compare.jpg",img->getImageMap());
 }
 

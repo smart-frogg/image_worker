@@ -7,6 +7,7 @@
 #include "piramid.h"
 #include "harrisdetector.h"
 #include "moravekdetector.h"
+#include "blobdetector.h"
 using namespace std;
 
 class SmartImage

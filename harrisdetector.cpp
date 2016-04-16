@@ -93,7 +93,7 @@ void HarrisDetector::calcDescriptors(double sigma,vector<Descriptor> *descriptor
         {
             if (!points[i].isClone)
                  calcDirection(points[i]);
-            points[i].sigma = sigma;
+            points[i].setSigma(sigma);
             descriptors->push_back(Descriptor(points[i],sobelFilter.get()));
         }
     }
@@ -141,8 +141,9 @@ void HarrisDetector::saveCompare(QString filename, ImageMap *data2)
     painter->drawImage(this->data->getWidth(),0,*image2);
     painter->setBrush(Qt::green);
 
-    for(Descriptor &d:descriptors)
+    for(Descriptor &d:descriptors) if (d.used)
     {
+
         painter->setPen(qRgb(rand()%255,rand()%255,rand()%255));
         Point *p1 = d.getPoint();
         Point *p2 = d.getClothest()->getPoint();

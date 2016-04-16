@@ -12,10 +12,16 @@ Point::Point (const Point &p)
 {
     this->x = p.x;
     this->y = p.y;
+    this->scale = p.scale;
     this->sigma = p.sigma;
     this->orientation = p.orientation;
     isClone = true;
 }
+void Point::setSigma(double sigma) {
+    this->sigma = sigma;
+    this->scale = log2(sigma);
+}
+
 double Point::angle(int x, int y) const
 {
     double phi = atan2(y-this->y,x-this->x);
@@ -27,7 +33,7 @@ double Point::angle(int x, int y) const
 
 double Point::destination (Point p) const
 {
-    return (x-p.x)*(x-p.x) + (y-p.y)*(y-p.y);
+    return (x*scale-p.x*p.scale)*(x*scale-p.x*p.scale) + (y*scale-p.y*p.scale)*(y*scale-p.y*p.scale);
 }
 
 double Point::destination (int x, int y) const
