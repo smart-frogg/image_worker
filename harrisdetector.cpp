@@ -91,6 +91,7 @@ void HarrisDetector::calcDescriptors(double sigma,double littleSigma,int scale,v
     {
         if (!isClear || usingPoints[i])
         {
+
             if (!points[i].isClone)
                  calcDirection(points[i]);
             points[i].setSigma(sigma);

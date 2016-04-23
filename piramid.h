@@ -14,6 +14,11 @@ private:
     vector<Descriptor> descriptors;
     unique_ptr<bool[]> usingPoints;
     void calculateOctavs(const ImageMap &input);
+    void invert(double dd1[3][3], double const dd[3][3]);
+    void clarify();
+    double dX(double x,double y,double s);
+    double dY(double x,double y,double s);
+    double dS(double x,double y,double s);
 public:
     vector<Blob> blobs;
     vector<Descriptor> *getDescriptors();
@@ -34,6 +39,7 @@ public:
     void genDOG();
     void findGoodPoints();
     Piramid(int countLayers, double sigma0, double sigmaFirst, const ImageMap &input);
+    double dogL(int x,int y,double sigma);
 };
 
 #endif // PIRAMID_H

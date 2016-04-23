@@ -29,6 +29,7 @@ public:
     void genDescriptors(vector<Descriptor> *descriptors, double sigma);
     Octave(int countLayers, double sigma, int scale, const ImageMap &input);
     void saveDOG(QString filename);
+    double dogL(int x,int y,double sigma);
 };
 
 #endif // OCTAVE_H

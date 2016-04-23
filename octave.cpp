@@ -128,3 +128,12 @@ double Octave::L(int x,int y,double sigma)
     //cout << "layer in octave is " << k <<endl;
     return layers[k]->getData(x,y);
 }
+double Octave::dogL(int x,int y,double sigma)
+{
+    double step = getStep();
+    int k = ceil(log(sigma/sigmaFirst)/log(step)) - 1;
+    if (k < 0) k = 0;
+    if (k >= dogs.size()) k = dogs.size()-1;
+    //cout << "layer in octave is " << k <<endl;
+    return dogs[k]->getData(x,y);
+}
