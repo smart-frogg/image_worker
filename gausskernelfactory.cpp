@@ -10,7 +10,7 @@ GaussKernelFactory::GaussKernelFactory()
 
 unique_ptr<SeparableKernel> GaussKernelFactory::getFilter(double sigma)
 {
-    int size = sigma*3.5;
+    int size = sigma*3;
     unique_ptr<double[]> fCol = make_unique<double[]>(2*size+1);
     unique_ptr<double[]> fRow = make_unique<double[]>(2*size+1);
     double d = sigma*sqrt(2*M_PI);

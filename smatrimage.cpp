@@ -79,44 +79,53 @@ void SmartImage::genDescriptors()
     harrisDetector = make_unique<HarrisDetector>(data.get());
     harrisDetector.get()->configure(0.02,0.06,1);
     harrisDetector->detect();
-    harrisDetector->clear(40);
-    harrisDetector->calcDescriptors(0.5);
+    harrisDetector->clear(150);
+    harrisDetector->calcDescriptors(0.5,1);
+    descriptors = harrisDetector->getDescriptors();
 //    harrisDetector->save(baseName+"_HarrisonDetector.jpg");
 }
 
 void SmartImage::genDescriptorsPiramid()
 {
-    createPiramid(10,0.5,1.);
+    createPiramid(6,0.5,1.);
     //piramid->save(baseName);
     //piramid->saveDOG(baseName);
-    unique_ptr<BlobDetector> detector = make_unique<BlobDetector>(piramid.get());
-    detector->detect();
-    detector->save(baseName);
-    //piramid->genDescriptors();
-    //piramid->findGoodPoints();
-    //piramid->saveDescriptors(baseName);
+    piramid->genDescriptors();
+    piramid->genDOG();
+    //    piramid->genBlobs();
+    piramid->findGoodPoints();
+    piramid->saveDescriptors(baseName);
+    descriptors = piramid->getDescriptors();
 }
 
 vector<Descriptor> *SmartImage::getDescriptors()
 {
-    return harrisDetector->getDescriptors();
+    return descriptors;
 }
 
 void SmartImage::compare(SmartImage *img)
 {
-    genDescriptors();
-    img->genDescriptors();
+    genDescriptorsPiramid();
+    img->genDescriptorsPiramid();
     vector<Descriptor> *descriptors1 = getDescriptors();
     vector<Descriptor> *descriptors2 = img->getDescriptors();
-    for(int i=0,n=descriptors1->size();i<n;i++)
-        (*descriptors1)[i].findClothest(descriptors2);
-    for(int i=0,n=descriptors2->size();i<n;i++)
-        (*descriptors2)[i].findClothest(descriptors1);
-    for(int i=0,n=descriptors1->size();i<n;i++)
-        if((*descriptors1)[i].getClothest()->getClothest()->getPoint()->destination(*((*descriptors1)[i].getPoint()))>4)
-            (*descriptors1)[i].used = false;
-
-    harrisDetector->saveCompare(baseName+"_compare.jpg",img->getImageMap());
+    for(Descriptor &descriptor:*descriptors1)
+        descriptor.findClothest(descriptors2);
+    for(Descriptor &descriptor:*descriptors2)
+        descriptor.findClothest(descriptors1);
+    for(Descriptor &descriptor:*descriptors1)
+    {
+        Descriptor *d = descriptor.getClothest();
+        if(d->getClothest()->getPoint()->destination(*(descriptor.getPoint()))>4)
+            descriptor.used = false;
+    }
+    for(Descriptor &descriptor:*descriptors1)
+    {
+        Descriptor *d = descriptor.getClothest();
+        if(d->getClothest()->getPoint()->destination(*(descriptor.getPoint()))>4)
+            d->used = false;
+    }
+    saveCompare(img->getImageMap());
 }
 
 ImageMap* SmartImage::getImageMap()
@@ -167,4 +176,33 @@ void SmartImage::testDetect(char detectorName)
     }
 }
 
+void SmartImage::saveCompare(ImageMap *data2)
+{
+    descriptors = getDescriptors();
+    unique_ptr<QImage> image = this->data->asImage();
+    unique_ptr<QImage> image2 = data2->asImage();
+    unique_ptr<QImage> result = make_unique<QImage>(this->data->getWidth()+data2->getWidth(), max(this->data->getHeight(),data->getHeight()), QImage::Format_RGB32);
+    unique_ptr<QPainter> painter = make_unique<QPainter>(result.get());
+    painter->drawImage(0,0,*image);
+    painter->drawImage(this->data->getWidth(),0,*image2);
+    //painter->setBrush(Qt::green);
 
+    for(Descriptor &d:*descriptors) if (d.used)
+    {
+        painter->setPen(qRgb(rand()%255,rand()%255,rand()%255));
+        Point *p1 = d.getPoint();
+        Point *p2 = d.getClothest()->getPoint();
+        double scale1 = 1<<p1->scale;
+        double scale2 = 1<<p2->scale;
+        painter->drawLine(p1->x*scale1,p1->y*scale1,p2->x*scale2 + this->data->getWidth(),p2->y*scale2);
+        double r = p1->sigma*sqrt(2)+1;
+        painter->drawEllipse(p1->x*scale1-r,p1->y*scale1-r,2*r,2*r);
+        r = p2->sigma*sqrt(2)+1;
+        painter->drawEllipse(p2->x*scale2-r+ this->data->getWidth(),p2->y*scale2-r,2*r,2*r);
+        //if(d->b != NULL)
+        //    painter->drawEllipse(p2->b->x-p2->b->r+ this->data->getWidth(),p2->b->y-p2->b->r,p2->b->r,p2->b->r);
+
+        //image->setPixel(p.x,p.y,qRgb(255,0,0));
+    }
+    result->save(baseName+"_compare.jpg","JPG", 100);
+}

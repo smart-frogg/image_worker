@@ -1,4 +1,5 @@
 #include "abstractdetector.h"
+#include "blobdetector.h"
 #include <QPainter>
 #include <iostream>
 
@@ -19,9 +20,10 @@ Point::Point (const Point &p)
 }
 void Point::setSigma(double sigma) {
     this->sigma = sigma;
-    this->scale = log2(sigma);
 }
-
+void Point::setScale(double scale) {
+    this->scale = scale;
+}
 double Point::angle(int x, int y) const
 {
     double phi = atan2(y-this->y,x-this->x);
@@ -33,7 +35,11 @@ double Point::angle(int x, int y) const
 
 double Point::destination (Point p) const
 {
-    return (x*scale-p.x*p.scale)*(x*scale-p.x*p.scale) + (y*scale-p.y*p.scale)*(y*scale-p.y*p.scale);
+    return (x*(1<<scale)-p.x*(1<<p.scale))*(x*(1<<scale)-p.x*(1<<p.scale)) + (y*(1<<scale)-p.y*(1<<p.scale))*(y*(1<<scale)-p.y*(1<<p.scale));
+}
+double Point::destination (Blob p) const
+{
+    return (x*(1<<scale)-p.x)*(x*(1<<scale)-p.x) + (y*(1<<scale)-p.y)*(y*(1<<scale)-p.y);
 }
 
 double Point::destination (int x, int y) const

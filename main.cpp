@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
         fileName = argv[1];
     unique_ptr<SmartImage>  image = make_unique<SmartImage>(fileName);
 
-    char mode = 'p';
+    char mode = 'c';
     if (argc > 2)
     {
         mode = argv[2][0];
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
         case 'c':
         {
             unique_ptr<SmartImage> image1 = make_unique<SmartImage>("c:/WORK/study/images_data/Church1.jpg");
-            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("c:/WORK/study/images_data/Church10.jpg");
+            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("c:/WORK/study/images_data/Church1little.jpg");
             image1->compare(image2.get());
 
         } break;

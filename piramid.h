@@ -2,7 +2,8 @@
 #define PIRAMID_H
 
 #include "octave.h"
-#define MIN_SIZE 20
+#include "blobdetector.h"
+#define MIN_SIZE 40
 class Piramid
 {
 private:
@@ -14,6 +15,8 @@ private:
     unique_ptr<bool[]> usingPoints;
     void calculateOctavs(const ImageMap &input);
 public:
+    vector<Blob> blobs;
+    vector<Descriptor> *getDescriptors();
     int countLayers;
     void saveDOG(QString filename);
     vector<unique_ptr<Octave>> octavs;
@@ -27,6 +30,8 @@ public:
     void save(QString filename);
     void saveDescriptors(QString filename);
     void genDescriptors();
+    void genBlobs();
+    void genDOG();
     void findGoodPoints();
     Piramid(int countLayers, double sigma0, double sigmaFirst, const ImageMap &input);
 };

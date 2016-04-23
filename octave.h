@@ -26,7 +26,7 @@ public:
     int size();
     unique_ptr<QImage> asImage();
     unique_ptr<ImageMap> scale();
-    void genDescriptors(vector<Descriptor> *descriptors);
+    void genDescriptors(vector<Descriptor> *descriptors, double sigma);
     Octave(int countLayers, double sigma, int scale, const ImageMap &input);
     void saveDOG(QString filename);
 };

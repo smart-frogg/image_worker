@@ -2,10 +2,13 @@
 #define ABSTRACTDETECTOR_H
 
 #include "ImageMap.h"
+class Blob;
 struct Point
 {
     int x;
     int y;
+    double laplasian;
+    Blob *b = NULL;
     int scale = 1;
     int count = 0;
     boolean isClone = false;
@@ -15,9 +18,11 @@ struct Point
     Point(){};
     Point(int x, int y);
     double destination (Point p) const;
+    double destination (Blob p) const;
     double destination (int x, int y) const;
     double angle(int x, int y) const;
     void setSigma(double sigma);
+    void setScale(double scale);
 };
 
 class AbstractDetector

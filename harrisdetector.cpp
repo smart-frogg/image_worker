@@ -51,7 +51,7 @@ void HarrisDetector::detect()
             f->setData(det - k * trace * trace, i, j);
             avg+=det - k * trace * trace;
         }
-    cout<<(avg/(imageWidth*imageHeight))<<endl;
+    //cout<<(avg/(imageWidth*imageHeight))<<endl;
     for (unsigned int i = 0; i < imageWidth; i++)
         for (unsigned int j = 0; j < imageHeight; j++)
         {
@@ -70,9 +70,9 @@ void HarrisDetector::detect()
         }
 }
 
-void HarrisDetector::calcDescriptors(double sigma)
+void HarrisDetector::calcDescriptors(double sigma,int scale)
 {
-    calcDescriptors(sigma, &descriptors);
+    calcDescriptors(sigma, sigma, scale, &descriptors);
    /* for(int i=0;i<points.size();i++)
     {
         if (!isClear || usingPoints[i])
@@ -85,7 +85,7 @@ void HarrisDetector::calcDescriptors(double sigma)
     }*/
 }
 
-void HarrisDetector::calcDescriptors(double sigma,vector<Descriptor> *descriptors)
+void HarrisDetector::calcDescriptors(double sigma,double littleSigma,int scale,vector<Descriptor> *descriptors)
 {
     for(int i=0;i<points.size();i++)
     {
@@ -94,7 +94,8 @@ void HarrisDetector::calcDescriptors(double sigma,vector<Descriptor> *descriptor
             if (!points[i].isClone)
                  calcDirection(points[i]);
             points[i].setSigma(sigma);
-            descriptors->push_back(Descriptor(points[i],sobelFilter.get()));
+            points[i].setScale(scale);
+            descriptors->push_back(Descriptor(points[i],8*littleSigma,sobelFilter.get()));
         }
     }
 }
@@ -115,7 +116,7 @@ void HarrisDetector::calcDirection(Point &p)
     hist.calcMax(TRESHOLD);
     p.orientation = hist.getFirstMax();
     double alpha2 = hist.getSecondMax();
-    if (alpha2 > 0)
+    if (alpha2 >=0.8*p.orientation)
     {
         Point p1(p);
         p1.orientation = alpha2;
@@ -129,31 +130,6 @@ vector<Descriptor> *HarrisDetector::getDescriptors()
     return &descriptors;
 }
 
-
-
-void HarrisDetector::saveCompare(QString filename, ImageMap *data2)
-{
-    unique_ptr<QImage> image = this->data->asImage();
-    unique_ptr<QImage> image2 = data2->asImage();
-    unique_ptr<QImage> result = make_unique<QImage>(this->data->getWidth()+data2->getWidth(), max(this->data->getHeight(),data->getHeight()), QImage::Format_RGB32);
-    unique_ptr<QPainter> painter = make_unique<QPainter>(result.get());
-    painter->drawImage(0,0,*image);
-    painter->drawImage(this->data->getWidth(),0,*image2);
-    painter->setBrush(Qt::green);
-
-    for(Descriptor &d:descriptors) if (d.used)
-    {
-
-        painter->setPen(qRgb(rand()%255,rand()%255,rand()%255));
-        Point *p1 = d.getPoint();
-        Point *p2 = d.getClothest()->getPoint();
-        painter->drawLine(p1->x,p1->y,p2->x + this->data->getWidth(),p2->y);
-        painter->drawEllipse(p1->x-2,p1->y-2,5,5);
-        painter->drawEllipse(p2->x-2 + this->data->getWidth(),p2->y-2,5,5);
-        //image->setPixel(p.x,p.y,qRgb(255,0,0));
-    }
-    result->save(filename,"JPG", 100);
-}
 
 
 

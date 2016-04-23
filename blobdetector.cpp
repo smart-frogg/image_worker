@@ -7,11 +7,12 @@ BlobDetector::BlobDetector(Piramid *p)
     data = p;
 }
 
-Blob::Blob(int x, int y, double sigma)
+Blob::Blob(int x, int y, double sigma, double val)
 {
     this->x = x;
     this->y = y;
     this->sigma = sigma;
+    this->val = val;
     this->r = sigma*sqrt(2);
     cout<<this->r<<endl;
 }
@@ -22,10 +23,19 @@ void BlobDetector::save(QString filename)
     unique_ptr<QPainter> painter = make_unique<QPainter>(image.get());
 
     painter->setPen(qRgb(0,100,0));
-    for(Blob &b:blobs) if (b.used)
-    {
-        painter->drawEllipse(b.x-1, b.y-1,2,2);
-        painter->drawEllipse(b.x-b.r, b.y-b.r,2*b.r,2*b.r);
+    int i = 0;
+    vector<Blob> blobs = data->blobs;
+    for(Blob &b:blobs) {
+
+//    for(int i=0;i<blobs.size(); i++) {
+        //Blob b = blobs[i];
+        //cout<<i<<" "<<b.sigma<<endl;
+        //i++;
+        if (b.used)
+        {
+            painter->drawEllipse(b.x-1, b.y-1,2,2);
+            painter->drawEllipse(b.x-b.r, b.y-b.r,2*b.r,2*b.r);
+        }
     }
     image->save(filename+"_blobs.jpg","JPG", 100);
 }
@@ -49,7 +59,7 @@ void BlobDetector::detect()
                     bool isMax = true;
                     bool isMin = true;
                     double val = img->getData(x,y);//* sigma;
-                    if(val<0.01 && val>-0.01) continue;
+                    if(val<0.031 && val>-0.031) continue;
                     //double ds =  sigma/sigmaStep;
                     //int dl = layerID;
                     for (int dl = layerID-1; dl <= layerID+1; dl++)
@@ -72,7 +82,7 @@ void BlobDetector::detect()
                     }
                     if (isMax || isMin)
                     {
-                        blobs.push_back(Blob(x*(oID+1),y*(oID+1),sigma));
+                        data->blobs.push_back(Blob(x*(1<<oID),y*(1<<oID),sigma,val));
                     }
                }
           }

@@ -27,27 +27,30 @@ void Octave::calculateLayers(const ImageMap &input)
 {
     double curSigma = sigmaFirst;
     double step = getStep();
-    unique_ptr<FilterKernel> filter = GaussKernelFactory::getFilter(step);
     layers.push_back(input.copy());
-    for (int i=0; i<countLayers+4; i++)
+    for (int i=0; i<countLayers+3; i++)
     {
+        unique_ptr<FilterKernel> filter = GaussKernelFactory::getFilter(sqrt(step*step-1)*curSigma);
         layers.push_back(filter->apply(*layers[i]));
+        curSigma*=step;
     }
 }
-void Octave::genDescriptors(vector<Descriptor> *descriptors)
+void Octave::genDescriptors(vector<Descriptor> *descriptors, double sigma)
 {
-    double curSigma = sigmaFirst;
+    double curSigma = sigma;
+    double littleSigma = 1;
     double step = getStep();
-    for (int i=0; i<countLayers+4; i++)
+    for (int i=0; i<countLayers+3; i++)
     {
-        curSigma *= step;
         unique_ptr<HarrisDetector> harrisDetector = make_unique<HarrisDetector>(layers[i].get());
-        harrisDetector->configure(0.01,0.06,3);
+        harrisDetector->configure(0.02,0.06,1);
         harrisDetector->detect();
         harrisDetector->clear(100);
-        harrisDetector->calcDescriptors(curSigma,descriptors);
-        harrisDetector->calcDescriptors(curSigma);
-        harrisDetector->save(BASE_PATH+QString::number(scaleSize)+"_"+QString::number(i)+"_HarrisonDetector.jpg");
+        harrisDetector->calcDescriptors(curSigma,littleSigma,scaleSize,descriptors);
+        //harrisDetector->calcDescriptors(curSigma);
+        curSigma *= step;
+        littleSigma *= step;
+        //harrisDetector->save(BASE_PATH+QString::number(scaleSize)+"_"+QString::number(i)+"_HarrisonDetector.jpg");
     }
 }
 
@@ -97,7 +100,7 @@ unique_ptr<ImageMap> Octave::genOneDOG(int i)
             double value = layers[i]->getData(x,y)-layers[i-1]->getData(x,y);
             image->setData(value,x,y);
         }
-    image->saveToFile(BASE_PATH+QString::number(scaleSize)+"_"+QString::number(i)+"_DOG.jpg");
+    //image->saveToFile(BASE_PATH+QString::number(scaleSize)+"_"+QString::number(i)+"_DOG.jpg");
     return image;
 }
 

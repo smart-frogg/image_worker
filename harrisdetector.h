@@ -14,13 +14,12 @@ protected:
     int winR;
     vector<Descriptor> descriptors;
 public:
-    void calcDescriptors(double sigma);
-    void calcDescriptors(double sigma, vector<Descriptor> *descriptors);
+    void calcDescriptors(double sigma, int scale);
+    void calcDescriptors(double sigma, double littleSigma, int scale, vector<Descriptor> *descriptors);
     vector<Descriptor> *getDescriptors();
     HarrisDetector(ImageMap *data);
     void configure(double T, double k, int winR);
     virtual void detect();
-    void saveCompare(QString filename, ImageMap *data2);
     void calcDirection(Point &p);
 };
 
