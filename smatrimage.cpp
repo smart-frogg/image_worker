@@ -150,7 +150,7 @@ void SmartImage::bind(SmartImage *img)
         if(d->getClothest()->getPoint()->destination(*(descriptor.getPoint()))>4)
             d->used = false;
     }
-    Transformer t(0.005);
+    Transformer t(0.5);
     t.descFrom = descriptors1;
     t.descTo = descriptors2;
     unique_ptr<QTransform> transform(t.getTransform());
@@ -158,13 +158,18 @@ void SmartImage::bind(SmartImage *img)
     unique_ptr<QImage> image = this->data->asImage();
     ImageMap *data2 = img->getImageMap();
     unique_ptr<QImage> image2 = data2->asImage();
-    unique_ptr<QImage> result = make_unique<QImage>(1.2*(this->data->getWidth()+data2->getWidth()), 1.2*max(this->data->getHeight(),data->getHeight()), QImage::Format_RGB32);
+    unique_ptr<QImage> result = make_unique<QImage>(2*(this->data->getWidth()+data2->getWidth()), 2*max(this->data->getHeight(),data->getHeight()), QImage::Format_RGB32);
     unique_ptr<QPainter> painter = make_unique<QPainter>(result.get());
-    painter->drawImage(0,0,*image2);
-    painter->setTransform( *transform);
-    painter->drawImage(0,0,*image);
 
-    result->save(baseName+"_bind.jpg","JPG", 100);
+    const QTransform &oldTrans = painter->transform();
+    painter->drawImage(this->data->getWidth(),this->data->getHeight()/2,*image2);
+    result->save(baseName+"_bind0.jpg","JPG", 100);
+    painter->setTransform( *transform);
+    result->save(baseName+"_bind1.jpg","JPG", 100);
+
+    painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
+    painter->drawImage(this->data->getWidth(),this->data->getHeight()/2,*image);
+    result->save(baseName+"_bind2.jpg","JPG", 100);
 }
 
 ImageMap* SmartImage::getImageMap()

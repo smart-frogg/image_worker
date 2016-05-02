@@ -27,8 +27,8 @@ void Transformer::normalize(vector<Descriptor> *desc)
     }
     for (Descriptor &d:*desc)
     {
-        d.getPoint()->normX = (d.getPoint()->x - minX)/(maxX - minX);
-        d.getPoint()->normY = (d.getPoint()->y - minY)/(maxY - minY);
+        d.getPoint()->normX = 2*(d.getPoint()->x - minX)/(maxX - minX) - 1;
+        d.getPoint()->normY = 2*(d.getPoint()->y - minY)/(maxY - minY) - 1;
     }
 }
 
@@ -50,31 +50,40 @@ void Transformer::formMatrix(Point *p1, Point *p2,gsl_matrix_view A)
 
 double Transformer::checkHypothesis(gsl_vector_view h)
 {
-    gsl_vector *x = gsl_vector_alloc(2);
-    gsl_matrix *A = gsl_matrix_alloc(2,9);
-    gsl_matrix_set_zero(A);
+    gsl_vector *x = gsl_vector_alloc(3);
+    gsl_vector *x1 = gsl_vector_alloc(3);
+    gsl_matrix *H = gsl_matrix_alloc(3,3);
+    for (int i=0;i<3;i++)
+        for (int j=0;j<3;j++)
+            gsl_matrix_set(H,i,j,gsl_vector_get(&(h.vector),i*3+j));
     int positives = 0;
     int used = 0;
     for(Descriptor &d:*descFrom)
     {
         if (!d.used) continue;
+       // cout<<"Used descriptor "<<used<<endl;
         used++;
         Point *p1 = d.getPoint();
         Point *p2 = d.getClothest()->getPoint();
-        formMatrix(p1, p2, gsl_matrix_submatrix (A, 0, 0, 2, 9));
-        for (int i=0;i<2;i++)
-        {
-            for (int j=0;j<9;j++)
-                 cout<<gsl_matrix_get(A,i,j)<<" ";
-            cout<<endl;
-        }
-        gsl_blas_dgemv(CblasNoTrans, 1.0, A, &(h.vector), 0.0, x);
-        cout<<gsl_vector_get(x,0)<<" "<<gsl_vector_get(x,1)<<endl;
-        if (gsl_vector_get(x,0) < treshold && gsl_vector_get(x,1) < treshold)
+        gsl_vector_set(x,0,p1->normX);
+        gsl_vector_set(x,1,p1->normY);
+        gsl_vector_set(x,2,1.0);
+        gsl_vector_set(x1,0,p2->normX);
+        gsl_vector_set(x1,1,p2->normY);
+        gsl_vector_set(x1,2,1.0);
+
+        gsl_blas_dgemv(CblasNoTrans, 1.0, H, x, -1.0, x1);
+        double l = 0;
+        for (int i=0;i<3;i++)
+            l += gsl_vector_get(x1,i)*gsl_vector_get(x1,i);
+        l = sqrt(l);
+        cout << l <<endl;
+        if (l < treshold)
             positives++;
     }
-    gsl_matrix_free(A);
+    gsl_matrix_free(H);
     gsl_vector_free(x);
+    gsl_vector_free(x1);
     return positives*1.0/used;
 }
 
@@ -105,15 +114,15 @@ gsl_vector *Transformer::ransac()
         formMatrix(p1, p2, gsl_matrix_submatrix (A, 0, 0, 2, 9));
         n = getRandomPoint();
         p1 = (*descFrom)[n].getPoint();
-        p2 = (*descTo)[n].getPoint();
+        p2 = (*descFrom)[n].getClothest()->getPoint();
         formMatrix(p1, p2, gsl_matrix_submatrix (A, 2, 0, 2, 9));
         n = getRandomPoint();
         p1 = (*descFrom)[n].getPoint();
-        p2 = (*descTo)[n].getPoint();
+        p2 = (*descFrom)[n].getClothest()->getPoint();
         formMatrix(p1, p2, gsl_matrix_submatrix (A, 4, 0, 2, 9));
         n = getRandomPoint();
         p1 = (*descFrom)[n].getPoint();
-        p2 = (*descTo)[n].getPoint();
+        p2 = (*descFrom)[n].getClothest()->getPoint();
         formMatrix(p1, p2, gsl_matrix_submatrix (A, 6, 0, 2, 9));
 
         gsl_matrix_transpose_memcpy (AT, A);
@@ -124,6 +133,7 @@ gsl_vector *Transformer::ransac()
 
         int min = gsl_vector_min_index(S);
         gsl_vector_view h = gsl_matrix_column(B,min);
+        gsl_vector_scale(&(h.vector),1/gsl_vector_get(&(h.vector),8));
         for (int a=0;a<9;a++)
             cout<<gsl_vector_get(&(h.vector),a)<<endl;
         double curPositives = checkHypothesis(h);
