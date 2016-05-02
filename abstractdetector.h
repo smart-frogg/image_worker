@@ -7,6 +7,9 @@ struct Point
 {
     int x;
     int y;
+    double normX;
+    double normY;
+
     double laplasian;
     Blob *b = NULL;
     int scale = 1;

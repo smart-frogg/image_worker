@@ -25,6 +25,7 @@ private:
     vector<Descriptor> *descriptors;
 public:
     void compare(SmartImage *img);
+    void bind(SmartImage *img);
     SmartImage(QString filename);
     double L(int x, int y, double sigma);
     void saveNormalize();

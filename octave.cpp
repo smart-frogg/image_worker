@@ -43,7 +43,7 @@ void Octave::genDescriptors(vector<Descriptor> *descriptors, double sigma)
     for (int i=0; i<countLayers+3; i++)
     {
         unique_ptr<HarrisDetector> harrisDetector = make_unique<HarrisDetector>(layers[i].get());
-        harrisDetector->configure(0.02,0.06,1);
+        harrisDetector->configure(0.01,0.06,1);
         harrisDetector->detect();
         harrisDetector->clear(100);
         harrisDetector->calcDescriptors(curSigma,littleSigma,scaleSize,descriptors);

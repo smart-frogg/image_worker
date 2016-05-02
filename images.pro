@@ -23,7 +23,8 @@ SOURCES += main.cpp \
     moravekdetector.cpp \
     harrisdetector.cpp \
     blobdetector.cpp \
-    descriptor.cpp
+    descriptor.cpp \
+    transformer.cpp
 
 HEADERS += \
     smatrimage.h \
@@ -39,4 +40,10 @@ HEADERS += \
     moravekdetector.h \
     harrisdetector.h \
     blobdetector.h \
-    descriptor.h
+    descriptor.h \
+    transformer.h
+
+unix|win32: LIBS += -L$$PWD/../GnuWin32/lib/ -lgsl
+
+INCLUDEPATH += $$PWD/../GnuWin32/include
+DEPENDPATH += $$PWD/../GnuWin32/include

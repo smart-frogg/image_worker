@@ -2,6 +2,7 @@
 
 #include <string>
 #include <memory>
+#include "transformer.h"
 using namespace std;
 
 SmartImage::SmartImage(QString filename)
@@ -126,6 +127,44 @@ void SmartImage::compare(SmartImage *img)
             d->used = false;
     }
     saveCompare(img->getImageMap());
+}
+void SmartImage::bind(SmartImage *img)
+{
+    genDescriptorsPiramid();
+    img->genDescriptorsPiramid();
+    vector<Descriptor> *descriptors1 = getDescriptors();
+    vector<Descriptor> *descriptors2 = img->getDescriptors();
+    for(Descriptor &descriptor:*descriptors1)
+        descriptor.findClothest(descriptors2);
+    for(Descriptor &descriptor:*descriptors2)
+        descriptor.findClothest(descriptors1);
+    for(Descriptor &descriptor:*descriptors1)
+    {
+        Descriptor *d = descriptor.getClothest();
+        if(d->getClothest()->getPoint()->destination(*(descriptor.getPoint()))>4)
+            descriptor.used = false;
+    }
+    for(Descriptor &descriptor:*descriptors1)
+    {
+        Descriptor *d = descriptor.getClothest();
+        if(d->getClothest()->getPoint()->destination(*(descriptor.getPoint()))>4)
+            d->used = false;
+    }
+    Transformer t(0.005);
+    t.descFrom = descriptors1;
+    t.descTo = descriptors2;
+    unique_ptr<QTransform> transform(t.getTransform());
+
+    unique_ptr<QImage> image = this->data->asImage();
+    ImageMap *data2 = img->getImageMap();
+    unique_ptr<QImage> image2 = data2->asImage();
+    unique_ptr<QImage> result = make_unique<QImage>(1.2*(this->data->getWidth()+data2->getWidth()), 1.2*max(this->data->getHeight(),data->getHeight()), QImage::Format_RGB32);
+    unique_ptr<QPainter> painter = make_unique<QPainter>(result.get());
+    painter->drawImage(0,0,*image2);
+    painter->setTransform( *transform);
+    painter->drawImage(0,0,*image);
+
+    result->save(baseName+"_bind.jpg","JPG", 100);
 }
 
 ImageMap* SmartImage::getImageMap()

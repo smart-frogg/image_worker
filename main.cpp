@@ -99,9 +99,10 @@ int main(int argc, char *argv[])
         } break;
         case 'c':
         {
-            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("c:/WORK/study/images_data/arka.jpg");
-            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("c:/WORK/study/images_data/arka1.jpg");
-            image1->compare(image2.get());
+            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("c:/WORK/study/images_data/panorama20.jpg");
+            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("c:/WORK/study/images_data/panorama10.jpg");
+            //image1->compare(image2.get());
+            image1->bind(image2.get());
 
         } break;
         case 'n':
