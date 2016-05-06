@@ -24,8 +24,8 @@ SOURCES += main.cpp \
     harrisdetector.cpp \
     blobdetector.cpp \
     descriptor.cpp \
+    haf.cpp \
     transformer.cpp
-
 HEADERS += \
     smatrimage.h \
     imagemap.h \
@@ -41,9 +41,14 @@ HEADERS += \
     harrisdetector.h \
     blobdetector.h \
     descriptor.h \
+    haf.h \
     transformer.h
 
 unix|win32: LIBS += -L$$PWD/../GnuWin32/lib/ -lgsl
+unix|win32: LIBS += -L$$PWD/../GnuWin32/lib/ -lgslcblas
 
 INCLUDEPATH += $$PWD/../GnuWin32/include
 DEPENDPATH += $$PWD/../GnuWin32/include
+
+unix|win32-g++: PRE_TARGETDEPS += $$PWD/../GnuWin32/lib/libgsl.a
+unix|win32-g++: PRE_TARGETDEPS += $$PWD/../GnuWin32/lib/libgslcblas.a

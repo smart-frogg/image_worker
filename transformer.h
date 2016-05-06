@@ -13,10 +13,10 @@ class Transformer
 {
 private:
     double treshold;
-    void normalize(vector <Descriptor>* desc);
-    void formMatrix(Point *p1, Point *p2, gsl_matrix_view A);
-    double checkHypothesis(gsl_vector_view h);
-    gsl_vector *ransac();
+    QTransform normalize(vector<Descriptor> *desc);
+    void formMatrix(vector<Descriptor*> descs, gsl_matrix *A);
+    double checkHypothesis(gsl_matrix *H);
+    gsl_matrix *ransac();
     int getRandomPoint();
 public:
     vector <Descriptor> *descFrom;
