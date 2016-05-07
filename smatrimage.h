@@ -16,7 +16,6 @@ private:
     QString baseName;
     int height;
     int width;
-    unique_ptr<QImage> img;
     unique_ptr<ImageMap> data;
     unique_ptr<Piramid> piramid;
     void normalize();
@@ -26,6 +25,7 @@ private:
 public:
     void compare(SmartImage *img);
     void search(SmartImage *img);
+    unique_ptr<QImage> img;
     void bind(SmartImage *img);
     SmartImage(QString filename);
     double L(int x, int y, double sigma);

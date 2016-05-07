@@ -97,6 +97,8 @@ void SmartImage::genDescriptorsPiramid()
     //    piramid->genBlobs();
     piramid->findGoodPoints();
     piramid->saveDescriptors(baseName);
+    piramid->clear();
+
     descriptors = piramid->getDescriptors();
 }
 
@@ -151,26 +153,25 @@ void SmartImage::bind(SmartImage *img)
         if(d->getClothest()->getPoint()->destination(*(descriptor.getPoint()))>4)
             d->used = false;
     }
-    Transformer t(0.5);
-    t.descFrom = descriptors1;
-    t.descTo = descriptors2;
-    unique_ptr<QTransform> transform(t.getTransform());
-
-    unique_ptr<QImage> image = this->data->asImage();
+    saveCompare(img->getImageMap());
     ImageMap *data2 = img->getImageMap();
-    unique_ptr<QImage> image2 = data2->asImage();
-    unique_ptr<QImage> result = make_unique<QImage>(2*(this->data->getWidth()+data2->getWidth()), 2*max(this->data->getHeight(),data->getHeight()), QImage::Format_RGB32);
+    Transformer t(0.007 * max(data2->getHeight(), data2->getWidth()));
+    t.setDescs(descriptors1);
+    QTransform transform = t.getTransform();
+    QImage *image = this->img.get();
+    QImage *image2 = img->img.get();
+    unique_ptr<QImage> result = make_unique<QImage>(3*max(this->data->getWidth(),data2->getWidth()), 3*max(this->data->getHeight(),data2->getHeight()), QImage::Format_RGB32);
+    result->fill(0);
     unique_ptr<QPainter> painter = make_unique<QPainter>(result.get());
 
-    painter->drawImage(this->data->getWidth(),this->data->getHeight()/2,*image2);
-    result->save(baseName+"_bind0.jpg","JPG", 100);
-    painter->setTransform( *transform);
-    result->save(baseName+"_bind1.jpg","JPG", 100);
-
-    painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
-    painter->drawImage(this->data->getWidth(),this->data->getHeight()/2,*image);
-    result->save(baseName+"_bind2.jpg","JPG", 100);
-}
+    painter->drawImage(result->width()/3,result->height()/3,*image);
+    QTransform trans(1,0,0,
+                    0,1,0,
+                    result->width()/3,result->height()/3,1);
+    painter->setTransform(transform*trans);
+    painter->drawImage(0,0,*image2);
+    result->save(baseName+"_bind.jpg","JPG", 100);
+ }
 
 void SmartImage::search(SmartImage *img)
 {
@@ -194,6 +195,7 @@ void SmartImage::search(SmartImage *img)
         if(d->getClothest()->getPoint()->destination(*(descriptor.getPoint()))>4)
             d->used = false;
     }
+    saveCompare(img->getImageMap());
     ImageMap *data2 = img->getImageMap();
     Haf haf(this);
     haf.calcCenter();
@@ -258,7 +260,9 @@ void SmartImage::saveCompare(ImageMap *data2)
     descriptors = getDescriptors();
     unique_ptr<QImage> image = this->data->asImage();
     unique_ptr<QImage> image2 = data2->asImage();
-    unique_ptr<QImage> result = make_unique<QImage>(this->data->getWidth()+data2->getWidth(), max(this->data->getHeight(),data->getHeight()), QImage::Format_RGB32);
+    unique_ptr<QImage> result = make_unique<QImage>(
+                this->data->getWidth()+data2->getWidth(),
+                max(this->data->getHeight(),data2->getHeight()), QImage::Format_RGB32);
     unique_ptr<QPainter> painter = make_unique<QPainter>(result.get());
     painter->drawImage(0,0,*image);
     painter->drawImage(this->data->getWidth(),0,*image2);

@@ -1,7 +1,7 @@
 #ifndef ABSTRACTDETECTOR_H
 #define ABSTRACTDETECTOR_H
 
-#include "ImageMap.h"
+#include "imagemap.h"
 class Blob;
 struct Point
 {
@@ -14,7 +14,7 @@ struct Point
     Blob *b = NULL;
     int scale = 1;
     int count = 0;
-    boolean isClone = false;
+    bool isClone = false;
     double sigma = 0.5;
     double orientation = 0;
     Point (const Point &p);

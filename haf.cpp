@@ -8,6 +8,13 @@ Haf::Haf(SmartImage *pattern)
 MetaData Haf::search(int w,int h)
 {
     //vector<Descriptor> *descs = pattern->getDescriptors();
+    for(int i1=0;i1<SCALE_BC;i1++)
+        for(int i2=0;i2<ORIENTATION_BC;i2++)
+            for(int i3=0;i3<COORDS_BC;i3++)
+                for(int i4=0;i4<COORDS_BC;i4++)
+                {
+                    buskets[i1][i2][i3][i4] = 0;
+                }
     for(MetaData &m:data)
     {
         Descriptor *d1 = m.d;
@@ -16,11 +23,9 @@ MetaData Haf::search(int w,int h)
         MetaData mNew;
         mNew.angle = m.angle - d1->getPoint()->orientation + d2->getPoint()->orientation;
         if (mNew.angle < 0) mNew.angle += 2*M_PI;
-        double r = sqrt(m.x*m.x + m.y*m.y);
         mNew.scale = d2->getPoint()->sigma / d1->getPoint()->sigma;
-        double r1 = mNew.scale * r;
-        mNew.x = r1*cos(mNew.angle);
-        mNew.y = r1*sin(mNew.angle);
+        mNew.x  = d2->getPoint()->x - (d1->getPoint()->x * cos(mNew.angle) - d1->getPoint()->y * sin(mNew.angle));
+        mNew.y = d2->getPoint()->y - (d1->getPoint()->x * sin(mNew.angle) + d1->getPoint()->y * cos(mNew.angle));
         int scaleI = mNew.scale/SCALE_BC;
         int angleI = mNew.angle*ORIENTATION_BC/(2*M_PI);
         int xI = (mNew.x*COORDS_BC)/w;

@@ -52,15 +52,15 @@ int main(int argc, char *argv[])
         cout << "h - Harris" << endl;
     }
     //QString fileName = "c:/WORK/study/images_data/kirpichnaya_kladka1.jpg";
-    QString fileName = "c:/WORK/study/images_data/rudbekia.jpg";
+    QString fileName = "../images_data/rudbekia.jpg";
    // QString fileName = "c:/WORK/study/images_data/Izyashhnyy-cvetok-iris.jpg";
     //QString fileName = "c:/WORK/study/images_data/Iris_sanguinea_01.jpg";
 
     if (argc >1)
         fileName = argv[1];
-    unique_ptr<SmartImage>  image = make_unique<SmartImage>(fileName);
+    unique_ptr<SmartImage>  image; //= make_unique<SmartImage>(fileName);
 
-    char mode = 'c';
+    char mode = 'b';
     if (argc > 2)
     {
         mode = argv[2][0];
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     {
         readerName = argv[2][0];
     }
-    image->setBorderType(readerName);
+    //image->setBorderType(readerName);
 
     char filterName = 'h';
     if (argc > 3)
@@ -99,12 +99,23 @@ int main(int argc, char *argv[])
         } break;
         case 'c':
         {
-            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("c:/WORK/study/images_data/parts/r.jpg");
-            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("c:/WORK/study/images_data/parts/full.jpg");
-            //image1->compare(image2.get());
-            image1->search(image2.get());
-            //image1->bind(image2.get());
+            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("/home/documents/images_data/parts/lemur.jpg");
+            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("/home/documents/images_data/parts/lemur1.jpg");
+            image1->compare(image2.get());
 
+        } break;
+        case 'b':
+        {
+            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("../images_data/obo1.JPG");
+            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("../images_data/obo2.JPG");
+            image1->bind(image2.get());
+
+        } break;
+        case 's':
+        {
+            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("/home/documents/images_data/parts/lemur.jpg");
+            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("/home/documents/images_data/parts/full.jpg");
+            image1->search(image2.get());
         } break;
         case 'n':
         default: image->saveNormalize();

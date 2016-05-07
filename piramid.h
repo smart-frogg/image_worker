@@ -30,6 +30,7 @@ public:
     double getSigmaFirst();
     double getSigmaLast();
     double getSigmaStep();
+    void clear();
     unique_ptr<QImage> asImage();
     double L(int x, int y, double sigma);
     void save(QString filename);

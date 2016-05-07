@@ -188,10 +188,17 @@ void Piramid::saveDescriptors(QString filename)
         Point *p1 = descriptors[i].getPoint();
         double r = p1->sigma*sqrt(2)+1;
         double scale = 1<<p1->scale;
-        painter->drawEllipse(p1->x*scale-r,p1->y*scale-r,2*r,2*r);
+        painter->drawEllipse(p1->x*scale-2,p1->y*scale-2,2*2,2*2);
+        //painter->drawEllipse(p1->x*scale-r,p1->y*scale-r,2*r,2*r);
     }
     image->save(filename+"descriptors.jpg","JPG", 100);
 }
+void Piramid ::clear()
+{
+    for(int i=0;i<octavs.size();i++)
+        octavs[i].reset(NULL);
+}
+
 double Piramid::dX(double x,double y,double s)
 {
     return dogL(x+1,y,s) - dogL(x-1,y,s);

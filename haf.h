@@ -3,9 +3,9 @@
 #include "smatrimage.h"
 #include <map>
 
-#define ORIENTATION_BC 30
+#define ORIENTATION_BC 20
 #define SCALE_BC 10
-#define COORDS_BC 20
+#define COORDS_BC 10
 struct MetaData {
     double x;
     double y;
