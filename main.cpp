@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
         fileName = argv[1];
     unique_ptr<SmartImage>  image; //= make_unique<SmartImage>(fileName);
 
-    char mode = 'b';
+    char mode = 's';
     if (argc > 2)
     {
         mode = argv[2][0];
@@ -99,22 +99,24 @@ int main(int argc, char *argv[])
         } break;
         case 'c':
         {
-            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("/home/documents/images_data/parts/lemur.jpg");
-            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("/home/documents/images_data/parts/lemur1.jpg");
+            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("../images_data/parts/lemur.jpg");
+            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("../images_data/parts/lemur1.jpg");
             image1->compare(image2.get());
 
         } break;
         case 'b':
         {
-            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("../images_data/obo1.JPG");
-            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("../images_data/obo2.JPG");
+            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("../images_data/p1s.JPG");
+            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("../images_data/p2s.JPG");
             image1->bind(image2.get());
 
         } break;
         case 's':
         {
-            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("/home/documents/images_data/parts/lemur.jpg");
-            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("/home/documents/images_data/parts/full.jpg");
+           // unique_ptr<SmartImage> image1 = make_unique<SmartImage>("../images_data/parts/r_int.JPG");
+           // unique_ptr<SmartImage> image2 = make_unique<SmartImage>("../images_data/parts/full_big.JPG");
+            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("C:/WORK/study/images_data/parts/lemur.JPG");
+            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("C:/WORK/study/images_data/parts/full_big_s.JPG");
             image1->search(image2.get());
         } break;
         case 'n':

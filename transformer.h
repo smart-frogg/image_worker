@@ -21,16 +21,21 @@ private:
     QTransform normalize(vector<Descriptor*> *desc);
     void formMatrix(vector<Descriptor*> descs, gsl_matrix *A);
     double checkHypothesis(gsl_vector_view h);
+    void afinFormMatrix(vector<Descriptor*> descs, gsl_matrix *A);
+    double afinCheckHypothesis(gsl_vector_view h);
     void ransac(double *result, int iterations);
+    void afinn(double *result, int iterations);
     int getRandomPoint(int n1,int n2,int n3);
     vector <Descriptor*> positiveDescs;
     vector <Descriptor*> descFrom;
     vector <Descriptor*> descTo;
 public:
     void setDescs(vector<Descriptor> *desc);
+    void setDescs(vector<Descriptor*> desc);
     Transformer(double treshold);
     vector<QTransform> getTransformVec();
     QTransform getTransform();
+    QTransform getAffinTransform();
 };
 
 #endif // TRANSFORMER_H

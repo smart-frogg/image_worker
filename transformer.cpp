@@ -19,6 +19,17 @@ void Transformer::setDescs(vector<Descriptor> *desc)
 
 }
 
+void Transformer::setDescs(vector<Descriptor*> desc)
+{
+    for (Descriptor *d:desc)
+    {
+        if (!d->used) continue;
+        descTo.push_back(d);
+        descFrom.push_back(d->getClothest());
+    }
+
+}
+
 QTransform Transformer::normalize(vector<Descriptor*> *desc)
 {
     double maxX = -1;
@@ -40,6 +51,8 @@ QTransform Transformer::normalize(vector<Descriptor*> *desc)
     {
         d->getPoint()->normX = d->getPoint()->x;// 2*(d.getPoint()->x - minX)/(maxX - minX) - 1;
         d->getPoint()->normY = d->getPoint()->y;//2*(d.getPoint()->y - minY)/(maxY - minY) - 1;
+        //d->getPoint()->normX =  2*(d->getPoint()->x - minX)/(maxX - minX) - 1;
+        //d->getPoint()->normY = 2*(d->getPoint()->y - minY)/(maxY - minY) - 1;
     }
     QTransform transform;
     transform.translate(-minX, -minY);
@@ -74,6 +87,25 @@ void Transformer::formMatrix(vector<Descriptor*> descs, gsl_matrix *A)
         i+=2;
     }
 }
+void Transformer::afinFormMatrix(vector<Descriptor*> descs, gsl_matrix *A)
+{
+    int i=0;
+    gsl_matrix_set_zero(A);
+    for (Descriptor *d:descs)
+    {
+        Point *p1 = d->getPoint();
+        Point *p2 = d->getClothest()->getPoint();
+        gsl_matrix_set(A,i+0,0,p1->normX);
+        gsl_matrix_set(A,i+0,1,p1->normY);
+        gsl_matrix_set(A,i+0,2,1);
+
+        gsl_matrix_set(A,i+1,3,p1->normX);
+        gsl_matrix_set(A,i+1,4,p1->normY);
+        gsl_matrix_set(A,i+1,5,1);
+
+        i+=2;
+    }
+}
 
 double Transformer::checkHypothesis(gsl_vector_view h)
 {
@@ -95,6 +127,36 @@ double Transformer::checkHypothesis(gsl_vector_view h)
         double l = sqrt((x - p2->x)*(x - p2->x) + (y - p2->y)*(y - p2->y)) ;
 
         //cout << l <<endl;
+        if (l < treshold)
+        {
+            positives++;
+            positiveDescs.push_back(d);
+
+        }
+    }
+    return positives*1.0/used;
+}
+
+double Transformer::afinCheckHypothesis(gsl_vector_view h)
+{
+    int positives = 0;
+    int used = 0;
+    double coef[9];
+    for(int i=0;i<6;i++)
+        coef[i] = gsl_vector_get(&(h.vector),i);
+    positiveDescs.clear();
+    for(Descriptor *d:descFrom)
+    {
+        if (!d->used) continue;
+       // cout<<"Used descriptor "<<used<<endl;
+        used++;
+        Point *p1 = d->getPoint();
+        Point *p2 = d->getClothest()->getPoint();
+        double x = (coef[0]*p1->x + coef[1]*p1->y + coef[2]) ;
+        double y = (coef[3]*p1->x + coef[4]*p1->y + coef[5]) ;
+        double l = sqrt((x - p2->x)*(x - p2->x) + (y - p2->y)*(y - p2->y)) ;
+
+        cout << l <<"\t"<<treshold<<endl;
         if (l < treshold)
         {
             positives++;
@@ -203,6 +265,54 @@ void Transformer::ransac(double *result,int iterations)
 
 }
 
+void Transformer::afinn(double *result, int iterations)
+{
+    double positives = 0;
+    double A_arr[6*6];
+    gsl_matrix_view A = gsl_matrix_view_array(A_arr,6,6); // матрица А Ж)
+    gsl_matrix *B = gsl_matrix_alloc(6,6);
+    gsl_matrix *V = gsl_matrix_alloc(6,6);
+    double S_arr[6];
+    gsl_vector_view S = gsl_vector_view_array(S_arr,6);
+
+   // for(int i=0; i<iterations; i++)
+    {
+        vector<Descriptor *> descs;
+
+        int n0 = getRandomPoint(-1,-1,-1);
+        descs.push_back(descFrom[n0]);
+        int n1 = getRandomPoint(n0,-1,-1);
+        descs.push_back(descFrom[n1]);
+        int n2 = getRandomPoint(n0,n1,-1);
+        descs.push_back(descFrom[n2]);
+        afinFormMatrix(descs, &(A.matrix));
+
+        //gsl_matrix_transpose_memcpy (&(AT.matrix), &(A.matrix));
+
+        //gsl_blas_dgemm (CblasNoTrans, CblasNoTrans, 1, &(AT.matrix), &(A.matrix), 0, B);
+
+        mul (&(A.matrix), B);
+        gsl_linalg_SV_decomp_jacobi(B, V, &(S.vector));
+        gsl_vector_view h = gsl_matrix_column(V,5);
+        //double curPositives = afinCheckHypothesis(h);
+       // if (positives < curPositives)
+        {
+            for (int i=0;i<6;i++)
+            {
+                result[i] = gsl_vector_get(&(h.vector),i);
+                cout<<result[i]<<endl;
+            }
+           // positives = curPositives;
+          //  cout<< "positives " << positives << endl;
+        }
+
+    }
+
+    gsl_matrix_free(B);
+    gsl_matrix_free(V);
+
+}
+
 vector<QTransform> Transformer::getTransformVec()
 {
     QTransform transform1 = normalize(&descFrom);
@@ -243,6 +353,20 @@ QTransform Transformer::getTransform()
                 result[0],result[3],result[6],
                 result[1],result[4],result[7],
                 result[2],result[5],result[8]
+                );
+
+    return transform;
+}
+QTransform Transformer::getAffinTransform()
+{
+    QTransform transform1 = normalize(&descFrom);
+    QTransform transform2 = normalize(&descTo);
+    double result[6];
+    afinn(result,20);
+    QTransform transform(
+                result[0],result[3],0,
+                result[1],result[4],0,
+                result[2],result[5],1
                 );
 
     return transform;

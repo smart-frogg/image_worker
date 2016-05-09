@@ -4,6 +4,7 @@
 #include <memory>
 #include "transformer.h"
 #include "haf.h"
+#include <iostream>
 using namespace std;
 
 SmartImage::SmartImage(QString filename)
@@ -147,15 +148,15 @@ void SmartImage::bind(SmartImage *img)
         if(d->getClothest()->getPoint()->destination(*(descriptor.getPoint()))>4)
             descriptor.used = false;
     }
-    for(Descriptor &descriptor:*descriptors1)
+    /*for(Descriptor &descriptor:*descriptors1)
     {
         Descriptor *d = descriptor.getClothest();
         if(d->getClothest()->getPoint()->destination(*(descriptor.getPoint()))>4)
             d->used = false;
-    }
+    }*/
     saveCompare(img->getImageMap());
     ImageMap *data2 = img->getImageMap();
-    Transformer t(0.007 * max(data2->getHeight(), data2->getWidth()));
+    Transformer t(0.007* max(data2->getHeight(), data2->getWidth()));
     t.setDescs(descriptors1);
     QTransform transform = t.getTransform();
     QImage *image = this->img.get();
@@ -176,7 +177,9 @@ void SmartImage::bind(SmartImage *img)
 void SmartImage::search(SmartImage *img)
 {
     genDescriptorsPiramid();
+    cout<<"Gen pattern descriptors: cpmplete"<<endl;
     img->genDescriptorsPiramid();
+    cout<<"Gen image descriptors: cpmplete"<<endl;
     vector<Descriptor> *descriptors1 = getDescriptors();
     vector<Descriptor> *descriptors2 = img->getDescriptors();
     for(Descriptor &descriptor:*descriptors1)
@@ -189,22 +192,48 @@ void SmartImage::search(SmartImage *img)
         if(d->getClothest()->getPoint()->destination(*(descriptor.getPoint()))>4)
             descriptor.used = false;
     }
-    for(Descriptor &descriptor:*descriptors1)
-    {
-        Descriptor *d = descriptor.getClothest();
-        if(d->getClothest()->getPoint()->destination(*(descriptor.getPoint()))>4)
-            d->used = false;
-    }
+
     saveCompare(img->getImageMap());
+    cout<<"Compare image: saved"<<endl;
+
     ImageMap *data2 = img->getImageMap();
-    Haf haf(this);
-    haf.calcCenter();
-    MetaData m = haf.search(data2->getWidth(),data2->getHeight());
+    unique_ptr<Haf> haf = make_unique<Haf>(this);
+    haf->calcCenter();
+    vector<MetaData> models = haf->search(data2->getWidth(),data2->getHeight());
+    cout<<"Search descriptors: complete"<<endl;
+
     unique_ptr<QImage> image2 = data2->asImage();
     unique_ptr<QPainter> painter = make_unique<QPainter>(image2.get());
+    for(MetaData &m:models)
+    {
+        painter->setPen(qRgb(rand()%255,rand()%255,rand()%255));
+        for(Descriptor *d:m.desc)
+        {
+            painter->drawEllipse(d->getPoint()->x-2,d->getPoint()->y-2,4,4);
+        }
+        QTransform tr;
+        tr.rotate(m.angle);
+        tr.translate(m.x,m.y);
+        tr.scale(m.scale,m.scale);
+
+        cout <<m.x<<" "<<m.y<<endl;
+        cout<<m.desc.size()<<endl;
+        painter->setWorldTransform(tr);
+        painter->drawRect(0,0,this->data->getWidth(),this->data->getHeight());
+        painter->resetTransform();
+    }
+    image2->save(baseName+"_haf0.jpg","JPG", 100);
+    //haf.reset(NULL);
+
+   /* Transformer t(0.007* max(data2->getHeight(), data2->getWidth()));
+    t.setDescs(haf->desc);
+    QTransform transform = t.getAffinTransform();
+
+    painter->setTransform(transform);
     painter->setPen(qRgb(rand()%255,rand()%255,rand()%255));
-    painter->drawEllipse(m.x,m.y,10,10);
-    image2->save(baseName+"_haf.jpg","JPG", 100);
+    painter->drawRect(0,0,this->data->getWidth(),this->data->getHeight());
+
+    image2->save(baseName+"_haf.jpg","JPG", 100);*/
 }
 
 ImageMap* SmartImage::getImageMap()
