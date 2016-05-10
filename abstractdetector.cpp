@@ -21,6 +21,16 @@ Point::Point (const Point &p)
 void Point::setSigma(double sigma) {
     this->sigma = sigma;
 }
+int Point::getRealX()
+{
+    return x*(1<<scale);
+}
+
+int Point::getRealY()
+{
+    return y*(1<<scale);
+}
+
 void Point::setScale(double scale) {
     this->scale = scale;
 }

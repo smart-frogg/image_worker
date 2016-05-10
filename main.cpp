@@ -97,6 +97,13 @@ int main(int argc, char *argv[])
         {
              image->testDetect(filterName);
         } break;
+        case 'B':
+        {
+            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("C:/WORK/study/images_data/parts/full_big_s.jpg");
+            image1->genDescriptorsPiramid();
+
+        } break;
+
         case 'c':
         {
             unique_ptr<SmartImage> image1 = make_unique<SmartImage>("../images_data/parts/lemur.jpg");
@@ -113,9 +120,9 @@ int main(int argc, char *argv[])
         } break;
         case 's':
         {
-           // unique_ptr<SmartImage> image1 = make_unique<SmartImage>("../images_data/parts/r_int.JPG");
-           // unique_ptr<SmartImage> image2 = make_unique<SmartImage>("../images_data/parts/full_big.JPG");
-            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("C:/WORK/study/images_data/parts/lemur.JPG");
+            //unique_ptr<SmartImage> image1 = make_unique<SmartImage>("../images_data/parts/lemur.JPG");
+            //unique_ptr<SmartImage> image2 = make_unique<SmartImage>("../images_data/parts/full_big_s.JPG");
+            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("C:/WORK/study/images_data/parts/r_int_s.JPG");
             unique_ptr<SmartImage> image2 = make_unique<SmartImage>("C:/WORK/study/images_data/parts/full_big_s.JPG");
             image1->search(image2.get());
         } break;

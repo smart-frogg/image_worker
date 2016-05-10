@@ -31,10 +31,11 @@ void BlobDetector::save(QString filename)
         //Blob b = blobs[i];
         //cout<<i<<" "<<b.sigma<<endl;
         //i++;
+        int scale = 1<<b.scale;
         if (b.used)
         {
-            painter->drawEllipse(b.x-1, b.y-1,2,2);
-            painter->drawEllipse(b.x-b.r, b.y-b.r,2*b.r,2*b.r);
+            painter->drawEllipse(b.x*scale-1, b.y*scale-1,2,2);
+            painter->drawEllipse(b.x*scale-b.r, b.y*scale-b.r,2*b.r,2*b.r);
         }
     }
     image->save(filename+"_blobs.jpg","JPG", 100);
@@ -42,15 +43,19 @@ void BlobDetector::save(QString filename)
 
 void BlobDetector::detect()
 {
+
     double sigmaFirst = data->getSigmaFirst();
     double sigmaStep = data->getSigmaStep();
     for (int oID = 0; oID < data->octavs.size(); oID++)
     {
-        data->octavs[oID]->genDOG();
+        //data->octavs[oID]->genDOG();
         double sigma = sigmaFirst*(1<<oID);
+        double littlesigma = 1;
 
         for (int layerID = 1; layerID < data->octavs[oID]->dogs.size()-1; layerID++)
         {
+            unique_ptr<HarrisDetector> harrisDetector = make_unique<HarrisDetector>(data->octavs[oID]->layers[layerID].get());
+            harrisDetector->configure(0.01,0.06,1);
             ImageMap* img =  data->octavs[oID]->dogs[layerID].get();
             for (int x=0;x<img->getWidth();x++)
             {
@@ -82,10 +87,14 @@ void BlobDetector::detect()
                     }
                     if (isMax || isMin)
                     {
-                        data->blobs.push_back(Blob(x*(1<<oID),y*(1<<oID),sigma,val));
+                        Blob b = Blob(x,y,sigma,val);
+                        b.scale = (oID);
+                        data->blobs.push_back(b);
+                        data->descriptors.push_back(harrisDetector->calcDescriptor(littlesigma,&(data->blobs[data->blobs.size()-1])));
                     }
                }
           }
+            littlesigma*=sigmaStep;
             sigma*=sigmaStep;
        }
     }

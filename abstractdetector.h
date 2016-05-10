@@ -26,6 +26,8 @@ struct Point
     double angle(int x, int y) const;
     void setSigma(double sigma);
     void setScale(double scale);
+    int getRealX();
+    int getRealY();
 };
 
 class AbstractDetector

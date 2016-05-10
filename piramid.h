@@ -11,7 +11,6 @@ private:
     double sigmaFirst;
     double width;
     double height;
-    vector<Descriptor> descriptors;
     unique_ptr<bool[]> usingPoints;
     void calculateOctavs(const ImageMap &input);
     void invert(double dd1[3][3], double const dd[3][3]);
@@ -22,6 +21,7 @@ private:
 public:
     vector<Blob> blobs;
     vector<Descriptor> *getDescriptors();
+    vector<Descriptor> descriptors;
     int countLayers;
     void saveDOG(QString filename);
     vector<unique_ptr<Octave>> octavs;

@@ -4,8 +4,8 @@
 #include <map>
 
 #define ORIENTATION_BC 20
-#define SCALE_BC 10
-#define COORDS_BC 10
+#define SCALE_BC 7
+#define COORDS_BC 15
 
 struct Index {
     int xI;

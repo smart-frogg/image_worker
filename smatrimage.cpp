@@ -93,14 +93,14 @@ void SmartImage::genDescriptorsPiramid()
     createPiramid(6,0.5,1.);
     //piramid->save(baseName);
     //piramid->saveDOG(baseName);
-    piramid->genDescriptors();
+    //piramid->genDescriptors();
     piramid->genDOG();
-    //    piramid->genBlobs();
-    piramid->findGoodPoints();
-    piramid->saveDescriptors(baseName);
-    piramid->clear();
-
+    piramid->genBlobs();
+    //piramid->findGoodPoints();
     descriptors = piramid->getDescriptors();
+    piramid->saveDescriptors(baseName);
+    //piramid->clear();
+
 }
 
 vector<Descriptor> *SmartImage::getDescriptors()
@@ -207,10 +207,10 @@ void SmartImage::search(SmartImage *img)
     for(MetaData &m:models)
     {
         painter->setPen(qRgb(rand()%255,rand()%255,rand()%255));
-        for(Descriptor *d:m.desc)
+        /*for(Descriptor *d:m.desc)
         {
             painter->drawEllipse(d->getPoint()->x-2,d->getPoint()->y-2,4,4);
-        }
+        }*/
         QTransform tr;
         tr.rotate(m.angle);
         tr.translate(m.x,m.y);

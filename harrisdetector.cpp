@@ -101,6 +101,13 @@ void HarrisDetector::calcDescriptors(double sigma,double littleSigma,int scale,v
     }
 }
 
+Descriptor HarrisDetector::calcDescriptor(double littleSigma, Point *p)
+{
+        if (!p->isClone)
+             calcDirection(*p);
+        return Descriptor(*p,8*littleSigma,sobelFilter.get());
+}
+
 void HarrisDetector::calcDirection(Point &p)
 {
     Histogram hist(BIG_BUSKETS_COUNT);

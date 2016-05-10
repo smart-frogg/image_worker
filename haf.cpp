@@ -37,16 +37,17 @@ vector<MetaData> Haf::search(int w,int h)
 
         MetaData mNew;
         mNew.d = d2;
-        mNew.angle = m.angle - d1->getPoint()->orientation + d2->getPoint()->orientation;
+        mNew.angle = /*m.angle - */  d2->getPoint()->orientation - d1->getPoint()->orientation;
         if (mNew.angle < 0) mNew.angle += 2*M_PI;
         mNew.scale = d2->getPoint()->sigma / d1->getPoint()->sigma;
-        mNew.x  = d2->getPoint()->x - mNew.scale*(d1->getPoint()->x * cos(mNew.angle) - d1->getPoint()->y * sin(mNew.angle));
-        mNew.y = d2->getPoint()->y - mNew.scale*(d1->getPoint()->x * sin(mNew.angle) + d1->getPoint()->y * cos(mNew.angle));
-        int sI = log2(mNew.scale)/sBinSize;
+        mNew.x  = d2->getPoint()->getRealX() - mNew.scale*(d1->getPoint()->getRealX()  * cos(mNew.angle) - d1->getPoint()->getRealY() * sin(mNew.angle));
+        mNew.y = d2->getPoint()->getRealY() - mNew.scale*(d1->getPoint()->getRealX() * sin(mNew.angle) + d1->getPoint()->getRealY() * cos(mNew.angle));
+        int sI = mNew.scale/sBinSize;
         int aI = mNew.angle/aBinSize;
         int xI = mNew.x/xBinSize;
         int yI = mNew.y/yBinSize;
 
+        cout << mNew.scale << "=s " << mNew.angle << "=a " << mNew.x << "=x " << mNew.y << "=y " <<endl;
 
         transData.push_back(mNew);
 
@@ -154,7 +155,7 @@ void Haf::calcCenter()
     double minX = pattern->getImageMap()->getWidth();
     double minY = pattern->getImageMap()->getHeight();
     double maxX = 0;
-    double maxY = 0;
+    /*double maxY = 0;
     for(Descriptor &d:(*descs))
     {
         if (!d.used) continue;
@@ -166,7 +167,7 @@ void Haf::calcCenter()
             minY = d.getPoint()->y;
         if (d.getPoint()->y > maxY)
             maxY = d.getPoint()->y;
-    }
+    }*/
     center.x=0;//(maxX-minX)/2;
     center.y=0;//(maxY-minY)/2;
     for(Descriptor &d:(*descs))

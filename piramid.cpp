@@ -105,6 +105,7 @@ void Piramid::genBlobs()
     detector->save(QString(BASE_PATH));
 }
 
+
 void Piramid::findGoodPoints()
 {
    //usingPoints = make_unique<bool[]>(descriptors.size());
@@ -183,13 +184,12 @@ void Piramid::saveDescriptors(QString filename)
 
     for (int i=0;i<descriptors.size();i++) if (descriptors[i].used)
     {
-
         painter->setPen(qRgb(rand()%255,rand()%255,rand()%255));
         Point *p1 = descriptors[i].getPoint();
         double r = p1->sigma*sqrt(2)+1;
         double scale = 1<<p1->scale;
-        painter->drawEllipse(p1->x*scale-2,p1->y*scale-2,2*2,2*2);
-        //painter->drawEllipse(p1->x*scale-r,p1->y*scale-r,2*r,2*r);
+        //painter->drawEllipse(p1->x*scale-2,p1->y*scale-2,2*2,2*2);
+        painter->drawEllipse(p1->x*scale-r,p1->y*scale-r,2*r,2*r);
     }
     image->save(filename+"descriptors.jpg","JPG", 100);
 }
