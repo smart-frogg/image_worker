@@ -106,8 +106,8 @@ int main(int argc, char *argv[])
 
         case 'c':
         {
-            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("../images_data/parts/lemur.jpg");
-            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("../images_data/parts/lemur1.jpg");
+            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("C:/WORK/study/images_data/parts/lemur.jpg");
+            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("C:/WORK/study/images_data/parts/lemur1.jpg");
             image1->compare(image2.get());
 
         } break;
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
             //unique_ptr<SmartImage> image1 = make_unique<SmartImage>("../images_data/parts/lemur.JPG");
             //unique_ptr<SmartImage> image2 = make_unique<SmartImage>("../images_data/parts/full_big_s.JPG");
             unique_ptr<SmartImage> image1 = make_unique<SmartImage>("C:/WORK/study/images_data/parts/lemur.JPG");
-            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("C:/WORK/study/images_data/parts/full_big_s.JPG");
+            unique_ptr<SmartImage> image2 = make_unique<SmartImage>("C:/WORK/study/images_data/parts/f.JPG");
             image1->search(image2.get());
         } break;
         case 'n':

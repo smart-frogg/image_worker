@@ -208,9 +208,9 @@ void SmartImage::search(SmartImage *img)
     for(MetaData &m:models) if(bestM==NULL || m.desc.size()>(*bestM).desc.size())
         bestM = &m;
     QTransform tr;
-    tr.rotate(bestM->angle);
     tr.translate(bestM->x,bestM->y);
     tr.scale(bestM->scale,bestM->scale);
+    tr.rotateRadians(bestM->angle);
     painter->setWorldTransform(tr);
     painter->setPen(qRgb(255,0,0));
 
@@ -234,7 +234,7 @@ void SmartImage::search(SmartImage *img)
     image2->save(baseName+"_haf0.jpg","JPG", 100);
     //haf.reset(NULL);
 
-    Transformer t(0.007* max(data2->getHeight(), data2->getWidth()));
+    /*Transformer t(0.007* max(data2->getHeight(), data2->getWidth()));
     double positives =0 ;
     QTransform best;
     for(MetaData &m:models) if(m.desc.size()>5)
@@ -251,7 +251,7 @@ void SmartImage::search(SmartImage *img)
     painter->setTransform(best);
     painter->setPen(qRgb(0,255,0));
     painter->drawRect(0,0,this->data->getWidth(),this->data->getHeight());
-    image2->save(baseName+"_haf.jpg","JPG", 100);
+    image2->save(baseName+"_haf0.jpg","JPG", 100);*/
 }
 
 ImageMap* SmartImage::getImageMap()

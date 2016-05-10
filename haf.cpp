@@ -47,7 +47,7 @@ vector<MetaData> Haf::search(int w,int h)
         int xI = mNew.x/xBinSize;
         int yI = mNew.y/yBinSize;
 
-        //cout << mNew.scale << "=s " << mNew.angle << "=a " << mNew.x << "=x " << mNew.y << "=y " <<endl;
+        cout << mNew.scale << "=s " << mNew.angle << "=a " << mNew.x << "=x " << mNew.y << "=y " <<endl;
 
         transData.push_back(mNew);
 

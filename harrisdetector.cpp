@@ -124,13 +124,13 @@ void HarrisDetector::calcDirection(Point &p)
     hist.calcMax(TRESHOLD);
     p.orientation = hist.getFirstMax();
     double alpha2 = hist.getSecondMax();
-    if (alpha2 >=0.8*p.orientation)
+   /* if (alpha2 >=0.8*p.orientation)
     {
         Point p1(p);
         p1.orientation = alpha2;
         points.push_back(p1);
         usingPoints[points.size()-1] = true;
-    }
+    }*/
 }
 
 vector<Descriptor> *HarrisDetector::getDescriptors()

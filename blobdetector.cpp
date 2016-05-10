@@ -14,7 +14,7 @@ Blob::Blob(int x, int y, double sigma, double val)
     this->sigma = sigma;
     this->val = val;
     this->r = sigma*sqrt(2);
-    cout<<this->r<<endl;
+   // cout<<this->r<<endl;
 }
 
 void BlobDetector::save(QString filename)
@@ -90,6 +90,7 @@ void BlobDetector::detect()
                         Blob b = Blob(x,y,sigma,val);
                         b.scale = (oID);
                         data->blobs.push_back(b);
+                        data->blobs[data->blobs.size()-1].isClone = false;
                         data->descriptors.push_back(harrisDetector->calcDescriptor(littlesigma,&(data->blobs[data->blobs.size()-1])));
                     }
                }
