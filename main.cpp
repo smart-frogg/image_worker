@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
         {
             //unique_ptr<SmartImage> image1 = make_unique<SmartImage>("../images_data/parts/lemur.JPG");
             //unique_ptr<SmartImage> image2 = make_unique<SmartImage>("../images_data/parts/full_big_s.JPG");
-            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("C:/WORK/study/images_data/parts/r_int_s.JPG");
+            unique_ptr<SmartImage> image1 = make_unique<SmartImage>("C:/WORK/study/images_data/parts/lemur.JPG");
             unique_ptr<SmartImage> image2 = make_unique<SmartImage>("C:/WORK/study/images_data/parts/full_big_s.JPG");
             image1->search(image2.get());
         } break;

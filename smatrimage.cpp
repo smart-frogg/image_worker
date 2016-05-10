@@ -204,13 +204,22 @@ void SmartImage::search(SmartImage *img)
 
     unique_ptr<QImage> image2 = data2->asImage();
     unique_ptr<QPainter> painter = make_unique<QPainter>(image2.get());
-    for(MetaData &m:models)
+    MetaData *bestM =NULL;
+    for(MetaData &m:models) if(bestM==NULL || m.desc.size()>(*bestM).desc.size())
+        bestM = &m;
+    QTransform tr;
+    tr.rotate(bestM->angle);
+    tr.translate(bestM->x,bestM->y);
+    tr.scale(bestM->scale,bestM->scale);
+    painter->setWorldTransform(tr);
+    painter->setPen(qRgb(255,0,0));
+
+    painter->drawRect(0,0,this->data->getWidth(),this->data->getHeight());
+    painter->resetTransform();
+    /*for(MetaData &m:models) if(m.desc.size()>best.desc.size())
     {
         painter->setPen(qRgb(rand()%255,rand()%255,rand()%255));
-        /*for(Descriptor *d:m.desc)
-        {
-            painter->drawEllipse(d->getPoint()->x-2,d->getPoint()->y-2,4,4);
-        }*/
+
         QTransform tr;
         tr.rotate(m.angle);
         tr.translate(m.x,m.y);
@@ -221,19 +230,28 @@ void SmartImage::search(SmartImage *img)
         painter->setWorldTransform(tr);
         painter->drawRect(0,0,this->data->getWidth(),this->data->getHeight());
         painter->resetTransform();
-    }
+    }*/
     image2->save(baseName+"_haf0.jpg","JPG", 100);
     //haf.reset(NULL);
 
-   /* Transformer t(0.007* max(data2->getHeight(), data2->getWidth()));
-    t.setDescs(haf->desc);
-    QTransform transform = t.getAffinTransform();
+    Transformer t(0.007* max(data2->getHeight(), data2->getWidth()));
+    double positives =0 ;
+    QTransform best;
+    for(MetaData &m:models) if(m.desc.size()>5)
+    {
 
-    painter->setTransform(transform);
-    painter->setPen(qRgb(rand()%255,rand()%255,rand()%255));
+        t.setDescs(m.desc,descriptors1);
+        QTransform transform = t.getTransform();
+        if (t.positives > positives)
+        {
+            positives = t.positives;
+            best = transform;
+        }
+    }
+    painter->setTransform(best);
+    painter->setPen(qRgb(0,255,0));
     painter->drawRect(0,0,this->data->getWidth(),this->data->getHeight());
-
-    image2->save(baseName+"_haf.jpg","JPG", 100);*/
+    image2->save(baseName+"_haf.jpg","JPG", 100);
 }
 
 ImageMap* SmartImage::getImageMap()

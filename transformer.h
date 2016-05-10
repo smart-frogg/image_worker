@@ -22,16 +22,17 @@ private:
     void formMatrix(vector<Descriptor*> descs, gsl_matrix *A);
     double checkHypothesis(gsl_vector_view h);
     void afinFormMatrix(vector<Descriptor*> descs, gsl_matrix *A);
-    double afinCheckHypothesis(gsl_vector_view h);
+    double affinCheckHypothesis(gsl_vector_view h);
     void ransac(double *result, int iterations);
-    void afinn(double *result, int iterations);
+    void afinn(double *result);
     int getRandomPoint(int n1,int n2,int n3);
     vector <Descriptor*> positiveDescs;
     vector <Descriptor*> descFrom;
-    vector <Descriptor*> descTo;
+    vector <Descriptor*> descAll;
 public:
     void setDescs(vector<Descriptor> *desc);
-    void setDescs(vector<Descriptor*> desc);
+    double positives;
+    void setDescs(vector<Descriptor*> desc, vector<Descriptor> *all);
     Transformer(double treshold);
     vector<QTransform> getTransformVec();
     QTransform getTransform();

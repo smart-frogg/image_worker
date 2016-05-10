@@ -102,7 +102,7 @@ void Piramid::genBlobs()
     blobs.clear();
     unique_ptr<BlobDetector> detector = make_unique<BlobDetector>(this);
     detector->detect();
-    detector->save(QString(BASE_PATH));
+    //detector->save(QString(BASE_PATH));
 }
 
 

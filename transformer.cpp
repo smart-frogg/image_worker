@@ -10,22 +10,28 @@ Transformer::Transformer(double treshold)
 
 void Transformer::setDescs(vector<Descriptor> *desc)
 {
+    descFrom.clear();
     for (Descriptor &d:*desc)
     {
         if (!d.used) continue;
-        descTo.push_back(&d);
         descFrom.push_back(d.getClothest());
     }
 
 }
 
-void Transformer::setDescs(vector<Descriptor*> desc)
+void Transformer::setDescs(vector<Descriptor*> desc,vector<Descriptor> *all)
 {
+    descAll.clear();
+    descFrom.clear();
     for (Descriptor *d:desc)
     {
         if (!d->used) continue;
-        descTo.push_back(d);
         descFrom.push_back(d->getClothest());
+    }
+    for (Descriptor &d:*all)
+    {
+        if (!d.used) continue;
+        descAll.push_back(d.getClothest());
     }
 
 }
@@ -49,8 +55,10 @@ QTransform Transformer::normalize(vector<Descriptor*> *desc)
     }
     for (auto d:*desc)
     {
-        d->getPoint()->normX = d->getPoint()->x;// 2*(d.getPoint()->x - minX)/(maxX - minX) - 1;
-        d->getPoint()->normY = d->getPoint()->y;//2*(d.getPoint()->y - minY)/(maxY - minY) - 1;
+        d->getPoint()->normX = d->getPoint()->getRealX();// 2*(d.getPoint()->x - minX)/(maxX - minX) - 1;
+        d->getPoint()->normY = d->getPoint()->getRealY();//2*(d.getPoint()->y - minY)/(maxY - minY) - 1;
+        d->getClothest()->getPoint()->normX = d->getClothest()->getPoint()->getRealX();// 2*(d.getPoint()->x - minX)/(maxX - minX) - 1;
+        d->getClothest()->getPoint()->normY = d->getClothest()->getPoint()->getRealY();//2*(d.getPoint()->y - minY)/(maxY - minY) - 1;
         //d->getPoint()->normX =  2*(d->getPoint()->x - minX)/(maxX - minX) - 1;
         //d->getPoint()->normY = 2*(d->getPoint()->y - minY)/(maxY - minY) - 1;
     }
@@ -94,7 +102,6 @@ void Transformer::afinFormMatrix(vector<Descriptor*> descs, gsl_matrix *A)
     for (Descriptor *d:descs)
     {
         Point *p1 = d->getPoint();
-        Point *p2 = d->getClothest()->getPoint();
         gsl_matrix_set(A,i+0,0,p1->normX);
         gsl_matrix_set(A,i+0,1,p1->normY);
         gsl_matrix_set(A,i+0,2,1);
@@ -122,9 +129,9 @@ double Transformer::checkHypothesis(gsl_vector_view h)
         used++;
         Point *p1 = d->getPoint();
         Point *p2 = d->getClothest()->getPoint();
-        double x = (coef[0]*p1->x + coef[1]*p1->y + coef[2]) / (coef[6]*p1->x + coef[7]*p1->y + coef[8]);
-        double y = (coef[3]*p1->x + coef[4]*p1->y + coef[5]) / (coef[6]*p1->x + coef[7]*p1->y + coef[8]);
-        double l = sqrt((x - p2->x)*(x - p2->x) + (y - p2->y)*(y - p2->y)) ;
+        double x = (coef[0]*p1->normX + coef[1]*p1->normY + coef[2]) / (coef[6]*p1->normX + coef[7]*p1->normY + coef[8]);
+        double y = (coef[3]*p1->normX + coef[4]*p1->normY + coef[5]) / (coef[6]*p1->normX + coef[7]*p1->normY + coef[8]);
+        double l = sqrt((x - p2->normX)*(x - p2->normX) + (y - p2->normY)*(y - p2->normY)) ;
 
         //cout << l <<endl;
         if (l < treshold)
@@ -137,26 +144,26 @@ double Transformer::checkHypothesis(gsl_vector_view h)
     return positives*1.0/used;
 }
 
-double Transformer::afinCheckHypothesis(gsl_vector_view h)
+double Transformer::affinCheckHypothesis(gsl_vector_view h)
 {
     int positives = 0;
     int used = 0;
     double coef[9];
-    for(int i=0;i<6;i++)
+    for(int i=0;i<9;i++)
         coef[i] = gsl_vector_get(&(h.vector),i);
     positiveDescs.clear();
-    for(Descriptor *d:descFrom)
+    for(Descriptor *d:descAll)
     {
         if (!d->used) continue;
        // cout<<"Used descriptor "<<used<<endl;
         used++;
         Point *p1 = d->getPoint();
         Point *p2 = d->getClothest()->getPoint();
-        double x = (coef[0]*p1->x + coef[1]*p1->y + coef[2]) ;
-        double y = (coef[3]*p1->x + coef[4]*p1->y + coef[5]) ;
-        double l = sqrt((x - p2->x)*(x - p2->x) + (y - p2->y)*(y - p2->y)) ;
+        double x = (coef[0]*p1->normX + coef[1]*p1->normY + coef[2]) / (coef[6]*p1->normX + coef[7]*p1->normY + coef[8]);
+        double y = (coef[3]*p1->normX + coef[4]*p1->normY + coef[5]) / (coef[6]*p1->normX + coef[7]*p1->normY + coef[8]);
+        double l = sqrt((x - p2->normX)*(x - p2->normX) + (y - p2->normY)*(y - p2->normY)) ;
 
-        cout << l <<"\t"<<treshold<<endl;
+        //cout << l <<endl;
         if (l < treshold)
         {
             positives++;
@@ -191,7 +198,7 @@ void mul(gsl_matrix *A,gsl_matrix *C)
 
 void Transformer::ransac(double *result,int iterations)
 {
-    double positives = 0;
+    positives = 0;
     double A_arr[8*9];
     gsl_matrix_view A = gsl_matrix_view_array(A_arr,8,9); // матрица А Ж)
    // double AT_arr[8*9];
@@ -265,49 +272,31 @@ void Transformer::ransac(double *result,int iterations)
 
 }
 
-void Transformer::afinn(double *result, int iterations)
+void Transformer::afinn(double *result)
 {
-    double positives = 0;
-    double A_arr[6*6];
-    gsl_matrix_view A = gsl_matrix_view_array(A_arr,6,6); // матрица А Ж)
-    gsl_matrix *B = gsl_matrix_alloc(6,6);
-    gsl_matrix *V = gsl_matrix_alloc(6,6);
-    double S_arr[6];
-    gsl_vector_view S = gsl_vector_view_array(S_arr,6);
 
-   // for(int i=0; i<iterations; i++)
+    gsl_matrix *B = gsl_matrix_alloc(9,9);
+    gsl_matrix *V = gsl_matrix_alloc(9,9);
+    double S_arr[9];
+    gsl_vector_view S = gsl_vector_view_array(S_arr,9);
+    gsl_matrix *A_good = gsl_matrix_alloc(2*descFrom.size(),9);
+    formMatrix(descFrom, A_good);
+    mul (A_good, B);
+    gsl_linalg_SV_decomp_jacobi(B, V, &(S.vector));
+    gsl_vector_view h = gsl_matrix_column(V,8);
+    gsl_vector_scale(&(h.vector),1/gsl_vector_get(&(h.vector),8));
+    positives = affinCheckHypothesis(h);
+    for (int i=0;i<3;i++)
     {
-        vector<Descriptor *> descs;
-
-        int n0 = getRandomPoint(-1,-1,-1);
-        descs.push_back(descFrom[n0]);
-        int n1 = getRandomPoint(n0,-1,-1);
-        descs.push_back(descFrom[n1]);
-        int n2 = getRandomPoint(n0,n1,-1);
-        descs.push_back(descFrom[n2]);
-        afinFormMatrix(descs, &(A.matrix));
-
-        //gsl_matrix_transpose_memcpy (&(AT.matrix), &(A.matrix));
-
-        //gsl_blas_dgemm (CblasNoTrans, CblasNoTrans, 1, &(AT.matrix), &(A.matrix), 0, B);
-
-        mul (&(A.matrix), B);
-        gsl_linalg_SV_decomp_jacobi(B, V, &(S.vector));
-        gsl_vector_view h = gsl_matrix_column(V,5);
-        //double curPositives = afinCheckHypothesis(h);
-       // if (positives < curPositives)
+        for (int j=0;j<3;j++)
         {
-            for (int i=0;i<6;i++)
-            {
-                result[i] = gsl_vector_get(&(h.vector),i);
-                cout<<result[i]<<endl;
-            }
-           // positives = curPositives;
-          //  cout<< "positives " << positives << endl;
+            result[j*3+i] = gsl_vector_get(&(h.vector),j*3+i);
+            cout<<gsl_vector_get(&(h.vector),j*3+i)<<"\t";
         }
-
+        cout<<endl;
     }
 
+    gsl_matrix_free(A_good);
     gsl_matrix_free(B);
     gsl_matrix_free(V);
 
@@ -316,7 +305,7 @@ void Transformer::afinn(double *result, int iterations)
 vector<QTransform> Transformer::getTransformVec()
 {
     QTransform transform1 = normalize(&descFrom);
-    QTransform transform2 = normalize(&descTo);
+    //QTransform transform2 = normalize(&descTo);
     double result[9];
     ransac(result,20000);
     vector<QTransform> v;
@@ -346,9 +335,9 @@ vector<QTransform> Transformer::getTransformVec()
 QTransform Transformer::getTransform()
 {
     QTransform transform1 = normalize(&descFrom);
-    QTransform transform2 = normalize(&descTo);
+    //QTransform transform2 = normalize(&descTo);
     double result[9];
-    ransac(result,20000);
+    ransac(result,200);
     QTransform transform(
                 result[0],result[3],result[6],
                 result[1],result[4],result[7],
@@ -360,13 +349,14 @@ QTransform Transformer::getTransform()
 QTransform Transformer::getAffinTransform()
 {
     QTransform transform1 = normalize(&descFrom);
-    QTransform transform2 = normalize(&descTo);
-    double result[6];
-    afinn(result,20);
+    QTransform transform2 = normalize(&descAll);
+   // QTransform transform2 = normalize(&descTo);
+    double result[9];
+    afinn(result);
     QTransform transform(
-                result[0],result[3],0,
-                result[1],result[4],0,
-                result[2],result[5],1
+                result[0],result[3],result[6],
+                result[1],result[4],result[7],
+                result[2],result[5],result[8]
                 );
 
     return transform;
